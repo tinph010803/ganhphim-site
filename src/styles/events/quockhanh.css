@@ -1,0 +1,69 @@
+/* event */
+#qk-event-load{ display: flex; position: fixed; z-index: 1000; top: 0; right: 0; bottom: 0; width: 100%; height: 100vh; background-color: var(--bg-color); flex-direction: column; align-items: center; justify-content: center; padding: 150px 0;}
+#qk-event-load .text-h1{ font-size: 2.5em; line-height: 1.6; color: #fff; font-weight: 600; margin: 0 auto; display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 0; width: 100%; padding: 0 1rem; height: 200px; max-width: 950px;}
+body.qk-base-load{ overflow: hidden; width: 100%; height: 100vh;}
+
+.qk-logo{ position: fixed; bottom: 60px; left: 50%; transform: translateX(-50%);}
+.qk-logo img{ height: 50px; width: auto;}
+.quockhanh-wide{ width: 100%; height: 400px; background: url(/images/event_quockhanh/background.webp) repeat; display: flex; align-items: stretch; justify-content: center; position: relative; overflow: hidden;}
+.quockhanh-wide .object-center{ height: 100%; width: 100%; max-width: 1200px; margin: 0 auto; z-index: 2; display: flex; align-items: center; gap: 0; justify-content: center;}
+.quockhanh-wide .object-center > div, .event-container .object-center > div{ height: 100%; position: relative; flex-shrink: 0; display: flex; align-items: center; justify-content: center;}
+.quockhanh-wide .object-center > div img, .event-container .object-center > div img{ height: 100%; width: auto;}
+.quockhanh-wide .object-center > div.vn-text{ position: relative; z-index: 3;}
+.quockhanh-wide .object-center > div.vn-hero{ position: relative; z-index: 3;}
+.trongdong-wrap{ position: absolute; top: 0; left: 0; right: 0; bottom: 0; z-index: 1; display: flex; align-items: center; justify-content: center; overflow: hidden; mask-image: linear-gradient(to top, transparent 10%, black 40%, black 60%, transparent 90%)}
+.trongdong-wrap .trongdong{ margin-top: -200px; width: 100%; padding-bottom: 100%; opacity: .5; position: absolute; left: 0; background-image: url(/images/event_quockhanh/trongdong.webp); background-size: cover; background-position: center center; animation: trong-dong 100s linear infinite; transition: all .3s ease 0s; transform-origin: center center; -webkit-transition: all .3s ease 0s; -moz-transition: all .3s ease 0s;}
+@keyframes trong-dong{
+    0%{ transform: rotate(0);}
+    50%{ transform: rotate(180deg);}
+    100%{ transform: rotate(360deg);}
+}
+.vn-flag{ opacity: .7;}
+
+/* timing */
+.qk-base-load #app{ animation: app-load-delay 1s linear forwards; animation-delay: 4s; opacity: 0; height: 100vh;}
+@keyframes app-load-delay{
+    0%{ opacity: 0; height: 100vh;}
+    100%{ opacity: 1; height: auto;}
+}
+
+#qk-event-load{ animation: event-load 4s linear forwards; opacity: 0;}
+@keyframes event-load{
+    0%{ opacity: 0; transform: scale(.9);}
+    20%{ opacity: 1; transform: scale(1);}
+    95%{ opacity: 1; transform: scale(1); z-index: 1000;}
+    100%{ opacity: 0; transform: scale(.9); visibility: hidden;}
+}
+
+/* home */
+.home-event-quockhanh{ position: relative; width: 100%;}
+.home-event-quockhanh .event-container{ width: 100%; max-width: 1800px; margin: 0 auto; overflow: hidden; background: url(/images/quockhanh/background.webp) repeat; border-radius: 1rem;}
+.event-container .object-center{ display: flex; align-items: stretch; gap: 0; justify-content: flex-start; height: 300px; padding: 0 2rem; position: relative;}
+.event-container .object-center .vn-flag{ position: absolute; top: -50px; left: -50px; width: 250px; height: 250px; flex-shrink: 0;}
+.event-container .object-center .big-text{ flex-grow: 1; padding: 2rem 6rem 2rem 0; font-size: 3em; font-weight: 700; color: #fff; display: flex; align-items: center; justify-content: center; flex-direction: column; flex-wrap: wrap; flex-shrink: unset !important;}
+
+
+
+@media screen and (max-width: 1440px){
+    .quockhanh-wide{ height: 300px;}
+}
+@media screen and (max-width: 1100px){
+    .quockhanh-wide{ height: 200px;}
+    #qk-event-load .text-h1{ font-size: 1.8em; line-height: 1.5; height: 120px; max-width: 740px;}
+    .trongdong-wrap .trongdong{ margin-top: -120px; width: 150%; padding-bottom: 150%; left: -25%;}
+}
+@media screen and (max-width: 720px){
+    .quockhanh-wide .object-center > div.vn-flag{ position: absolute; top: 0; left: 50%; transform: translate(-50%,-50%); top: 50%; width: 50%; padding-bottom: 50%; height: 0; opacity: .3;}
+    .quockhanh-wide .object-center > div.vn-flag img{ position: absolute; top: 0; left: 0; right: 0; bottom: 0; object-fit: cover;}
+    #qk-event-load .text-h1{ font-size: 20px; max-width: 600px;}
+}
+@media screen and (max-width: 479px){
+    .quockhanh-wide .object-center{ flex-direction: column-reverse;}
+    .quockhanh-wide .object-center > div.vn-flag{ opacity: 1;}
+    .quockhanh-wide .object-center > div.vn-text{ height: 140px;}
+    .quockhanh-wide{ padding-top: 60px; height: 300px;}
+    .trongdong-wrap .trongdong{ margin-top: -90px;}
+    #qk-event-load .text-h1{ font-size: 14px; height: 90px;}
+    .qk-logo{ bottom: 40px;}
+    .qk-logo img{ height: 40px;}
+}

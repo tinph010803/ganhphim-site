@@ -1,0 +1,32 @@
+{
+  "short_name": "RoPhim",
+  "name": "Rổ Phim",
+  "icons": [
+    {
+      "src": "/images/icon-192x192.png",
+      "type": "image/png",
+      "sizes": "192x192",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/images/icon-512x512.png",
+      "type": "image/png",
+      "sizes": "512x512",
+      "purpose": "any maskable"
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "/images/capture.png",
+      "type": "image/png",
+      "sizes": "1200x630",
+      "form_factor": "wide"
+    }
+  ],
+  "start_url": "/phimhay?source=pwa",
+  "background_color": "#000000",
+  "display": "standalone",
+  "scope": "/",
+  "theme_color": "#000000",
+  "description": "Rổ Phim - Phim hay cả rổ. Xem phim mới chất lượng HD miễn phí. Phim thuyết minh, phim chiếu rạp, phim lẻ. Xem phim HD online Vietsub hay hấp dẫn."
+}

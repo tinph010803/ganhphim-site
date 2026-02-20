@@ -1,0 +1,50 @@
+@media screen and (max-width: 1599px){
+    .chat-stick{ display: none !important;}
+}
+.chat-stick{ position: fixed; bottom: 0; left: 1rem; z-index: 99; display: none !important;}
+.chat-stick .cs-button{ background-color: #fff; border-radius: .6rem .6rem 0 0; height: 36px; font-size: 13px; padding: 0 .8rem; display: flex; justify-content: center; align-items: center; gap: .3rem; color: #000; cursor: pointer; box-shadow: 0 0 20px 0 #0002;}
+.chat-stick .cs-button .hide-chat{ color: #fff; padding: .1rem .4rem; border-radius: .3rem; background-color: #0008;}
+.chat-stick .cs-pops-wrap{ position: absolute; bottom: 42px; left: 0; z-index: 3; max-height: 118px; overflow: hidden; display: flex; flex-direction: column-reverse;}
+/* .chat-stick .cs-pops-wrap{ height: 118px; mask-image: linear-gradient(to top, black 0,black 58%, transparent 90%, transparent 100%);} */
+.chat-stick .cs-pops{ display: flex; flex-direction: column; align-items: flex-start; gap: 2px;}
+.chat-stick .cs-pops .item{ max-width: 300px; display: inline-block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; padding: 0 .9rem; line-height: 38px; border-radius: 2rem; font-size: 13px; color: #fff; background-color: #707070f7;}
+.chat-stick .cs-pops .item{ background-color: #ffffff2e; backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px);}
+
+.chat-stick .cs-pops-wrap.demo{ height: 118px; max-height: none !important; width: 300px;}
+
+.chat-stick .cs-pops-wrap.demo .cs-pops{ animation: chat-slide 7s infinite; animation-delay: 3s; position: absolute; left: 0; bottom: -200px;}
+@keyframes chat-slide {
+    0% {
+        bottom: -200px;
+    }
+    10% {
+        bottom: -160px;
+    }
+    20% {
+        bottom: -160px;
+    }
+    30% {
+        bottom: -120px;
+    }
+    40% {
+        bottom: -120px;
+    }
+    50% {
+        bottom: -80px;
+    }
+    60% {
+        bottom: -80px;
+    }
+    70% {
+        bottom: -40px;
+    }
+    80% {
+        bottom: -40px;
+    }
+    90% {
+        bottom: 0px;
+    }
+    100% {
+        bottom: 0px;
+    }
+}

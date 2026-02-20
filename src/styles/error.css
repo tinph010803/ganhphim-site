@@ -1,0 +1,50 @@
+
+html, body{position: relative; min-height: 100vh;}
+body{ color: #aaa; font-size: 18px; line-height: 1.5; font-weight: 400; padding: 0; margin: 0; -webkit-text-size-adjust: none; display: flex; align-items: center; justify-content: center; background: rgb(37,41,57);
+    background: radial-gradient(circle, rgba(37,41,57,1) 0%, rgba(15,17,26,1) 100%); }
+.e-head{ font-size: 2em; font-weight: 600; color: #fff;}
+.error-board{ width: calc(100% - 80px); max-width: 1000px; margin: 2rem auto;}
+.error-board .border-content{ max-width: 600px;}
+.error-board .e-icon{ width: 100%; mask-image: linear-gradient(to right, transparent 0%, black 30% ,black 70%, transparent 100%);}
+.error-board .e-icon svg{ width: 100%; height: auto;}
+.cable-center{ position: relative; animation: cable-center linear 1s infinite; transform-origin: center center;}
+@keyframes cable-center {
+    0% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.2);
+    }
+    100% {
+        transform: scale(1);
+    }
+}
+.cable-left{ position: relative; animation: cable-left linear 1s infinite;}
+@keyframes cable-left {
+    0% {
+        transform: translateX(0);
+    }
+    50% {
+        transform: translateX(-30px);
+    }
+    100% {
+        transform: translateX(0);
+    }
+}
+.cable-right{ position: relative; animation: cable-right linear 1s infinite;}
+@keyframes cable-right {
+    0% {
+        transform: translateX(0);
+    }
+    50% {
+        transform: translateX(30px);
+    }
+    100% {
+        transform: translateX(0);
+    }
+}
+@media screen and (max-width: 540px){
+    body{ font-size: 14px; width: 100%; overflow-x: hidden;}
+    .e-head{ line-height: 1.4; font-size: 1.6em;}
+    .error-board .e-icon{ width: 140%; margin: 0 -20%;}
+}

@@ -1,0 +1,99 @@
+@media screen and (max-width: 1859px){
+	#fullwide{ flex-direction: column;}
+	#head_nav{ position: relative; top: auto; height: auto; width: 100%;}
+	#head_nav .nav-wrap{ padding: 20px; flex-direction: row; align-items: center; justify-content: space-between;}
+	#head_nav-copyright{ display: none;}
+	#head_nav-menu{ flex-direction: row; align-items: center; justify-content: flex-start;}
+	.top-menu{ flex-direction: row; gap: 2.5rem;}
+	.top-menu li a::before{ display: none !important;}
+}
+@media screen and (max-width: 1599px){
+	.section-top .show-content{ width: 50%; padding-top: 0;}
+	.top-mockup{ width: 70%;}
+	.heading-xl{ font-size: 2.5em;}
+	.top-mockup .hand{ width: 600px; height: 600px; right: 10%;}
+}
+@media screen and (max-width: 1199px){
+	.section-top .show-content{ width: 100%; max-width: 600px; margin: 0 auto; text-align: center;}
+	.show-content .buttons{ justify-content: center;}
+	.top-mockup{ width: 100%; opacity: 1; mask-image: none !important; background-image: url(/images/mockup-blank.webp); background-size: cover; background-position: center center;}
+	.top-mockup *{ display: none;}
+	.line-flex.tips{ justify-content: center;}
+	.feature-cards{ grid-template-columns: repeat(2,1fr);}
+	.sbs-install{ flex-direction: column; gap: 3rem;}
+	.sbs-install .pop-install{ width: 100%;}
+	.faq-list{ max-width: none;}
+	.section-faq .stick-icon{ display: none;}
+	.sbs-download{ flex-direction: column; gap: 1.25rem;}
+	.sbs-download > .item{ width: 100%; flex-direction: row; align-items: center; padding: 2rem 2rem 2rem 0; gap: 0; min-height: 180px; overflow: hidden;}
+	.sbs-download > .item .card-icon{ width: 300px; flex-shrink: 0; padding: 0; margin-right: -50px;}
+	.sbs-download > .item .card-info{ flex-grow: 1; flex-direction: row-reverse; justify-content: space-between;}
+	.sbs-download > .item .card-info .devices{ text-align: left; font-size: 1.2em; color: #fff; font-weight: 500; line-height: 1.5; flex-grow: 1;}
+	.sbs-download > .item .card-info .buttons{ width: 280px; flex-shrink: 0; margin-left: 1rem; padding-bottom: 40px; position: relative; z-index: 3;}
+	.sbs-download > .item .tips-install{ position: absolute; bottom: 40px; width: 280px; right: 2rem; text-align: center;}
+}
+@media screen and (max-width: 1000px){
+	#mobile_nav{ display: block; position: absolute; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; top: 50%; transform: translateY(-50%); right: 20px; color: #fff; font-size: 20px; cursor: pointer;}
+	#mobile_nav.active{ color: var(--primary-color);}
+	#logo img{ height: 40px;}
+	#head_nav{ position: absolute; top: 0; left: 0; right: 0; z-index: 5;}
+	#head_nav-menu{ position: absolute; top: 90%; right: 20px; width: 220px; padding: 0; z-index: 9; display: none;}
+	#head_nav-menu.active{ display: block;}
+	.top-menu{ flex-direction: column; align-items: flex-start; gap: 0; width: 100%; padding: 1rem .5rem; background-color: #0008; backdrop-filter: blur(20px); border-radius: 1rem;}
+	.top-menu li{ padding: .6rem 1rem;}
+	.top-menu li a{ font-size: 1em;}
+	.feature-cards{ column-gap: 2rem;}
+	.section-top .show-content{ padding-top: 80px;}
+	.sbs-download > .item .card-icon{ width: 200px; margin-right: -30px;}
+	.content_sbs{ flex-direction: column; padding-top: 2rem; gap: 2rem;}
+	.content_sbs > div{ padding: 0 !important; border: none !important; width: 100%; position: relative; top: auto;}
+	.section-video .video-frame{ padding-bottom: 50%; background-color: #000; border-radius: 0;}
+	.section-video .mobile-mockup{ background-color: transparent; padding: 0; border-radius: 0;}
+}
+@media screen and (max-width: 780px){
+	.sbs-download > .item{ padding: 2rem 2rem 70px 0; align-items: flex-start;}
+	.sbs-download > .item .card-icon{ margin-right: 0px; width: 160px;}
+	.sbs-download > .item .card-info{ flex-direction: column; gap: 1rem;}
+	.sbs-download > .item .card-info .buttons{ width: 100%; margin-left: 0; padding-bottom: 0;}
+	.sbs-download > .item .card-info .devices{ font-size: .9em; font-weight: 400; text-align: center;}
+	.sbs-download > .item .tips-install{ left: 0; right: 0; bottom: 0; width: 100%; background-color: #fff1;}
+	.sbs-download > .item .tips-install a{ text-decoration: none !important; width: 100%; line-height: 46px;}
+}
+@media screen and (max-width: 640px){
+	body{ font-size: 15px;}
+	.section{ padding: 1.5rem 1.25rem;}
+	.show-content{ gap: 1.5rem;}
+	.btn-xl{ font-size: 20px; padding: 1rem 1.8rem; border-radius: .75rem;}
+	.feature-cards{ grid-template-columns: repeat(1,1fr); row-gap: 2rem;}
+	.show-content .description{ line-height: 1.6; font-size: 1em;}
+	.sbs-download > .item{ padding: 2rem; flex-direction: column;}
+	.sbs-download > .item .card-icon{ width: 90%; margin: 0 auto; padding: 1rem 0 2rem;}
+	.sbs-download > .item .card-info{ width: 100%; padding-bottom: 50px;}
+	.sbs-download > .item .buttons .btn{ padding: .7rem 1rem !important; gap: .2rem;}
+	.sbs-download > .item .buttons .btn span{ font-size: 15px;}
+	#page_content{ padding: 0;}
+	#page_nav .c-container{ padding: 1rem; gap: 1rem;}
+	#page_nav .nav-back{ padding: .75rem;}
+	#page_nav .nav-back span{ display: none;}
+	#page_nav #logo img{ height: 40px;}
+	#page_title .c-container{ padding: .75rem 1rem;}
+	#page_title .c-container .heading-md{ font-size: 1.3em;}
+	.c-notice, .content_sbs .section-article{ padding: 1rem !important;}
+	.content_sbs{ padding-top: 0; gap: 1rem;}
+}
+@media screen and (max-width: 479px){
+	.section-top .show-content .btn-gradient{ width: 100%; padding: 0 1rem !important; height: 70px;}
+	.show-content .buttons .btn-xl .icon-btn{ width: 40px; border-radius: .5rem;}
+	.show-content .buttons .btn-xl span{ padding: 0 2rem;}
+	.heading-xl{ font-size: 1.8em;}
+	.line-flex.tips{ gap: 1.5rem !important; font-size: 13px;}
+	.sbs-install .pop-install{ padding: 1.8rem;}
+	.feature-cards .card-item .content .heading-sm{ margin-bottom: .5rem;}
+	.faq-list .accordion .accordion-button{ font-size: 16px;}
+	.install-list .accordion-body .step-makeup{ padding: 1rem 1rem 1rem 1.5rem; border-radius: .6rem;}
+	.install-list .accordion-body .step-makeup img{ border-width: 3px; border-radius: 1rem;}
+}
+@media screen and (max-width: 360px){
+}
+@media screen and (max-width: 320px){
+}

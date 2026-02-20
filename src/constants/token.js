@@ -1,0 +1,7 @@
+const ACCESS_TOKEN_KEY = '_zGkKfTdV1x';
+const REFRESH_TOKEN_KEY = '_TyWUq0AhxV';
+
+export {
+  ACCESS_TOKEN_KEY,
+  REFRESH_TOKEN_KEY
+}
