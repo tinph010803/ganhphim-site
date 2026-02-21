@@ -21,6 +21,12 @@ const initialState = {
     filterPageCount: 0,
     filterIsLoading: true,
     hotMovies: [],
+    hotSeries: [],
+    hotSingles: [],
+    cinemaMovies: [],
+    animeMovies: [],
+    hongKongMovies: [],
+    horrorMovies: [],
     showReportModal: false
 }
 
@@ -29,6 +35,53 @@ export const fetchHotMovies = createAsyncThunk(
     async (_, thunkAPI) => {
         const result = await MovieApi.hot()
         return result
+    },
+)
+
+export const fetchHotSeries = createAsyncThunk(
+    'movie/fetchHotSeries',
+    async (_, thunkAPI) => {
+        const result = await MovieApi.filter({type: '2', page: 1})
+        return result?.items || []
+    },
+)
+
+export const fetchHotSingles = createAsyncThunk(
+    'movie/fetchHotSingles',
+    async (_, thunkAPI) => {
+        const result = await MovieApi.filter({type: '1', page: 1})
+        return (result?.items || []).slice(0, 10)
+    },
+)
+
+export const fetchCinemaMovies = createAsyncThunk(
+    'movie/fetchCinemaMovies',
+    async (_, thunkAPI) => {
+        return await MovieApi.cinema()
+    },
+)
+
+export const fetchAnimeMovies = createAsyncThunk(
+    'movie/fetchAnimeMovies',
+    async (_, thunkAPI) => {
+        const items = await MovieApi.bySlug('hoat-hinh')
+        return (items || []).slice(0, 20)
+    },
+)
+
+export const fetchHongKongMovies = createAsyncThunk(
+    'movie/fetchHongKongMovies',
+    async (_, thunkAPI) => {
+        const result = await MovieApi.filter({countries: ['hong-kong'], page: 1})
+        return (result?.items || []).slice(0, 20)
+    },
+)
+
+export const fetchHorrorMovies = createAsyncThunk(
+    'movie/fetchHorrorMovies',
+    async (_, thunkAPI) => {
+        const result = await MovieApi.filter({genres: ['kinh-di'], page: 1})
+        return (result?.items || []).slice(0, 20)
     },
 )
 
@@ -165,6 +218,36 @@ export const movieSlice = createSlice({
         builder.addCase(fetchHotMovies.fulfilled, (state, action) => {
             if (action.payload) {
                 state.hotMovies = action.payload
+            }
+        })
+        builder.addCase(fetchHotSeries.fulfilled, (state, action) => {
+            if (action.payload) {
+                state.hotSeries = action.payload
+            }
+        })
+        builder.addCase(fetchHotSingles.fulfilled, (state, action) => {
+            if (action.payload) {
+                state.hotSingles = action.payload
+            }
+        })
+        builder.addCase(fetchCinemaMovies.fulfilled, (state, action) => {
+            if (action.payload) {
+                state.cinemaMovies = action.payload
+            }
+        })
+        builder.addCase(fetchAnimeMovies.fulfilled, (state, action) => {
+            if (action.payload) {
+                state.animeMovies = action.payload
+            }
+        })
+        builder.addCase(fetchHongKongMovies.fulfilled, (state, action) => {
+            if (action.payload) {
+                state.hongKongMovies = action.payload
+            }
+        })
+        builder.addCase(fetchHorrorMovies.fulfilled, (state, action) => {
+            if (action.payload) {
+                state.horrorMovies = action.payload
             }
         })
     }

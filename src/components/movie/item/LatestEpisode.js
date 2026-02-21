@@ -19,7 +19,8 @@ const MovieItemLatestEpisode = ({movie}) => {
     }
   }, [movie]);
 
-  if (movie.status === "Upcoming")
+  const statusLower = movie.status?.toLowerCase()
+  if (statusLower === "upcoming" || statusLower === "trailer")
     return (
       <div className="pin-new">
         <div className="line-center line-coming">
@@ -28,20 +29,41 @@ const MovieItemLatestEpisode = ({movie}) => {
       </div>
     )
 
-  if (latestEpisode)
+  if (latestEpisode) {
+    if (movie.type === 1 || movie.type === "single") {
+      // Phim lẻ: không hiện số tập, LT và TM gộp 1 (ưu tiên LT)
+      const hasPD = latestEpisode["1"] !== undefined;
+      const ltVersion = latestEpisode["2"] !== undefined ? "lt"
+        : (latestEpisode["3"] !== undefined || latestEpisode["4"] !== undefined) ? "tm"
+        : null;
+      return (
+        <div className="pin-new m-pin-new">
+          {hasPD && (
+            <div className="line-center line-pd" key={`m_${movie._id}_pd`}>
+              <span></span>
+            </div>
+          )}
+          {ltVersion && (
+            <div className={`line-center line-${ltVersion}`} key={`m_${movie._id}_lt`}>
+              <span></span>
+            </div>
+          )}
+        </div>
+      )
+    }
+
+    // Phim bộ: hiện label + số tập
     return (
       <div className="pin-new m-pin-new">
-        {Object.keys(latestEpisode).map(version => {
-          return (
-            <div className={`line-center line-${version === "1" ? "pd" : (version === "2" ? "lt" : "tm")}`}
-                 key={`m_${movie._id}_${version}`}>
-              {movie.type === 1 && `${version === "1" ? "P.Đề" : (version === "2" ? "L.Tiếng" : "T.Minh")}`}
-              {movie.type !== 1 && <><span></span><strong>{movie.latest_episode[version]}</strong></>}
-            </div>
-          )
-        })}
+        {Object.keys(latestEpisode).map(version => (
+          <div className={`line-center line-${version === "1" ? "pd" : (version === "2" ? "lt" : "tm")}`}
+               key={`m_${movie._id}_${version}`}>
+            <span></span><strong>{movie.latest_episode[version]}</strong>
+          </div>
+        ))}
       </div>
     )
+  }
 }
 
 export default memo(MovieItemLatestEpisode)

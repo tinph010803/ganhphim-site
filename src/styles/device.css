@@ -59,8 +59,7 @@
     .more-topic .intro .heading-md{ font-size: 1.3em !important; line-height: 1.8 !important;}
     .topics-list.single .row-topic .row-content{ width: calc(100% - 200px);}
     .topics-list.single .row-topic .intro .heading-md{ font-size: 1.8em !important;}
-    .it-col.this-03{ display: none;}
-    .it-col.this-01, .it-col.this-02{ width: 400px;}
+    .it-col.this-01, .it-col.this-02, .it-col.this-03{ flex: 1; min-width: 0;}
     .home-live .live-grid-big{ width: 55%;}
     .home-live .live-grid-big .card-live:nth-child(n+3){ display: none;}
     .shoutbox-fixed.show{ width: 340px;}

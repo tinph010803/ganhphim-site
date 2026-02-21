@@ -33,17 +33,9 @@ const OPHIM_TOPICS = [
 
 // Virtual collections for OPhim home page (12 collections = 3 pages x 4)
 const OPHIM_HOME_COLLECTIONS = [
-  {_id: 'ophim-phim-bo',       name: 'Phim Bộ Hot',          style: 2, path: '/danh-sach/phim-bo'},
-  {_id: 'ophim-phim-le',       name: 'Phim Lẻ Hay',          style: 2, path: '/danh-sach/phim-le'},
-  {_id: 'ophim-han-quoc',      name: 'Phim Hàn Quốc',        style: 1, path: '/quoc-gia/han-quoc'},
-  {_id: 'ophim-au-my',         name: 'Phim Âu Mỹ',           style: 1, path: '/quoc-gia/au-my'},
-  {_id: 'ophim-trung-quoc',    name: 'Phim Trung Quốc',      style: 1, path: '/quoc-gia/trung-quoc'},
-  {_id: 'ophim-hanh-dong',     name: 'Phim Hành Động',       style: 2, path: '/the-loai/hanh-dong'},
-  {_id: 'ophim-kinh-di',       name: 'Phim Kinh Dị',         style: 2, path: '/the-loai/kinh-di'},
-  {_id: 'ophim-hoan-thanh',    name: 'Phim Đã Hoàn Thành',   style: 2, path: '/danh-sach/phim-hoan-thanh'},
-  {_id: 'ophim-nhat-ban',      name: 'Phim Nhật Bản',        style: 2, path: '/quoc-gia/nhat-ban'},
-  {_id: 'ophim-tinh-cam',      name: 'Phim Tình Cảm',        style: 2, path: '/the-loai/tinh-cam'},
-  {_id: 'ophim-viet-nam',      name: 'Phim Việt Nam',        style: 2, path: '/quoc-gia/viet-nam'},
+  {_id: 'ophim-han-quoc',      name: 'Phim Hàn Quốc',        style: 1, color: '#f4a724', path: '/quoc-gia/han-quoc'},
+  {_id: 'ophim-au-my',         name: 'Phim Âu Mỹ',           style: 1, color: '#e84393', path: '/quoc-gia/au-my'},
+  {_id: 'ophim-trung-quoc',    name: 'Phim Trung Quốc',      style: 1, color: '#f4724a', path: '/quoc-gia/trung-quoc'},
 ]
 
 class CollectionApi {
@@ -92,9 +84,9 @@ class CollectionApi {
             }))
             movies = [...detailed, ...movies.slice(10)]
           }
-          return {_id: col._id, name: col.name, style: col.style, type: 1, slug: col._id, movies, random_data: false}
+          return {_id: col._id, name: col.name, style: col.style, color: col.color, path: col.path, type: 1, slug: col._id, movies, random_data: false}
         } catch {
-          return {_id: col._id, name: col.name, style: col.style, type: 1, slug: col._id, movies: [], random_data: false}
+          return {_id: col._id, name: col.name, style: col.style, color: col.color, path: col.path, type: 1, slug: col._id, movies: [], random_data: false}
         }
       }))
 

@@ -17,6 +17,12 @@ import CollectionStyleEvent304 from "@/components/collection/StyleEvent304";
 import HomeW2g from "@/components/home/W2g";
 import AdsBannerCenter from "@/components/ads/BannerCenter";
 import RobongWidget from "@/components/home/RobongWidget";
+import HomeHotSeries from "@/components/home/HotSeries";
+import HomeTop10Singles from "@/components/home/Top10Singles";
+import HomeCinema from "@/components/home/Cinema";
+import HomeAnime from "@/components/home/Anime";
+import HomeHongKong from "@/components/home/HongKong";
+import HomeHorror from "@/components/home/Horror";
 
 const DataBlockList = () => {
     const dispatch = useAppDispatch()
@@ -97,10 +103,6 @@ const DataBlockList = () => {
 
             {/*<HomeW2g/>*/}
 
-            <HomeCommunity/>
-
-            <AdsBannerCenter page="home" position="center_3"/>
-
             {others.filter(i => i.style === 1).length > 0 && (
                 <div className="cards-row cards-slide wide effect-fade-in">
                     <div className="topics-list single mt-0">
@@ -110,6 +112,22 @@ const DataBlockList = () => {
                     </div>
                 </div>
             )}
+
+            <HomeCommunity/>
+
+            <HomeHotSeries/>
+
+            <HomeTop10Singles/>
+
+            <HomeCinema/>
+
+            <HomeAnime/>
+
+            <HomeHongKong/>
+
+            <HomeHorror/>
+
+            <AdsBannerCenter page="home" position="center_3"/>
 
             {others.filter(i => i.style !== 1).map((item) => (
                 <div key={item._id} className="effect-fade-in">

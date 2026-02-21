@@ -150,7 +150,7 @@ const MovieTooltipInfo = () => {
             </div>
             <div className="touch-group">
               <Link href={movieWatchUrl(tooltipItem)} className="btn btn-block btn-primary">
-                <i className="fa-solid fa-play"></i>{tooltipItem.status === "Upcoming" ? "Xem Trailer" : "Xem ngay"}
+                <i className="fa-solid fa-play"></i>{(tooltipItem.status === "Upcoming" || tooltipItem.status === "Trailer") ? "Xem Trailer" : "Xem ngay"}
               </Link>
               <MovieFavoriteButton position="tooltip" movieId={tooltipItem._id}/>
               <Link className="btn btn-outline" href={movieDetailUrl(tooltipItem)}>

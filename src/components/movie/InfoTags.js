@@ -15,6 +15,9 @@ const MovieInfoTags = ({movie}) => {
             {movie.rating && <div className="tag-model">
                 <span className="last"><strong>{movie.rating}</strong></span>
             </div>}
+            {(movie.status === "Upcoming" || movie.status === "Trailer") && <div className="tag-classic">
+                <span>Sắp chiếu</span>
+            </div>}
             {movie.year && <div className="tag-classic">
                 <span>{movie.year}</span>
             </div>}

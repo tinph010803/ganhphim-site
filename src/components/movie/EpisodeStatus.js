@@ -1,6 +1,16 @@
 import {memo} from "react";
 
 const MovieEpisodeStatus = ({movie, className = ""}) => {
+    if (movie.status === "Upcoming" || movie.status === "Trailer")
+        return (
+            <div className={`status on-going ${className}`}>
+                <div className="line-center small">
+                    <i className="fa-solid fa-clock"></i>
+                    <span>Sắp chiếu</span>
+                </div>
+            </div>
+        )
+
     if (movie.type === 2) {
         const latestEpisode = movie.latest_episode ? Math.max(...Object.values(movie.latest_episode)) : 1
         let totalEpisodes = "?"
@@ -16,7 +26,7 @@ const MovieEpisodeStatus = ({movie, className = ""}) => {
                     </div>
                 </div>
             )
-        else if (movie.status !== "Upcoming")
+        else if (movie.status !== "Upcoming" && movie.status !== "Trailer")
             return (
                 <div className={`status complete ${className}`}>
                     <div className="line-center small">

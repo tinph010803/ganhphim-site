@@ -5,7 +5,7 @@ const MovieInfoLine = ({movie}) => {
     return (
         <div className="info-line">
             <div className="tag-small"><strong>{movie.rating}</strong></div>
-            {movie.status === "Upcoming" && (<div className="tag-small">
+            {(movie.status === "Upcoming" || movie.status === "Trailer") && (<div className="tag-small">
                 Sắp chiếu
             </div>)}
             {movie.type !== 1 && <>

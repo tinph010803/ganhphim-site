@@ -1202,7 +1202,7 @@ body.focus-mod .player-ratio .control-items .item{ visibility: hidden;}
 .top-discuss-wrapper .sw-navigation .sw-button.swiper-button-disabled{ opacity: 0;}
 .top-discuss-wrapper .sw-navigation .sw-button svg{ width: 20px !important; height: 20px !important;}
 .irt-table{ display: flex; align-items: stretch; justify-content: space-between; gap: 0;}
-.irt-table .it-col{ padding: 1.5rem 2rem;}
+.irt-table .it-col{ padding: 1.5rem 2rem; flex: 1; min-width: 0;}
 .irt-table .it-col + .it-col{ border-left: 1px solid #fff1;}
 .it-col .chart-list{ display: flex; flex-direction: column; gap: 0;}
 .it-col .chart-list .item{ display: flex; align-items: center; gap: 1rem; min-height: 50px; padding: 4px 0;}

@@ -41,7 +41,7 @@ export const normalizeOphimListItem = (item, cdn) => {
         title: item.name,
         english_title: item.origin_name || item.name,
         type: mapOphimType(item.type),
-        status: item.status === 'completed' || /hoàn tất|full/i.test(item.episode_current || '') ? 'Ended' : item.status === 'ongoing' ? 'On Going' : 'Released',
+        status: item.status === 'completed' || /hoàn tất|full/i.test(item.episode_current || '') ? 'Ended' : item.status === 'ongoing' ? 'On Going' : item.status === 'trailer' ? 'Trailer' : item.status === 'upcoming' ? 'Upcoming' : 'Released',
         quality,
         overview: '',
         year: item.year,
@@ -108,7 +108,7 @@ const normalizeOphimDetail = (data) => {
         english_title: movie.origin_name || movie.name,
         overview: movie.content || '',
         type: mapOphimType(movie.type),
-        status: movie.status === 'completed' ? 'Ended' : movie.status === 'ongoing' ? 'On Going' : 'Released',
+        status: movie.status === 'completed' ? 'Ended' : movie.status === 'ongoing' ? 'On Going' : movie.status === 'trailer' ? 'Trailer' : movie.status === 'upcoming' ? 'Upcoming' : 'Released',
         quality: (movie.quality || '').toLowerCase(),
         year: movie.year,
         imdb_rating: parseFloat(movie.imdb?.vote_average || movie.tmdb?.vote_average || 0) || 0,
@@ -181,6 +181,34 @@ class MovieApi {
         }
         const {result} = await getAPI({path: `${API_PREFIX}/hot`});
         return result;
+    }
+
+    cinema = async () => {
+        if (isUsingOphimApi()) {
+            const res = await getAPI({path: '/danh-sach/phim-chieu-rap?page=1', version: ''})
+            const cdn = `${res?.data?.APP_DOMAIN_CDN_IMAGE || 'https://img.ophim.live'}/uploads/movies`
+            return (res?.data?.items || []).map((item) => normalizeOphimListItem(item, cdn))
+        }
+        const {result} = await getAPI({path: `${API_PREFIX}/filter?type=1&status=released&limit=20`});
+        return result?.items || []
+    }
+
+    bySlug = async (slug, page = 1) => {
+        if (isUsingOphimApi()) {
+            const res = await getAPI({path: `/danh-sach/${slug}?page=${page}`, version: ''})
+            const cdn = `${res?.data?.APP_DOMAIN_CDN_IMAGE || 'https://img.ophim.live'}/uploads/movies`
+            const rawItems = (res?.data?.items || [])
+            return await Promise.all(rawItems.map(async (item) => {
+                const base = normalizeOphimListItem(item, cdn)
+                try {
+                    const det = await getAPI({path: `/phim/${item.slug}`, version: ''})
+                    const ov = (det?.data?.item?.content || '').replace(/<[^>]*>/g, '').slice(0, 300)
+                    return {...base, overview: ov}
+                } catch { return base }
+            }))
+        }
+        const {result} = await getAPI({path: `${API_PREFIX}/filter?limit=20&page=${page}`});
+        return result?.items || []
     }
 
     casts = async (id) => {

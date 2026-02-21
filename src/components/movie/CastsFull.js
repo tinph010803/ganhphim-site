@@ -2,21 +2,58 @@
 
 import {memo, useEffect, useState} from "react";
 import MovieApi from "@/api/movie.api";
+import TmdbApi from "@/api/tmdb.api";
 import {peopleAvatar} from "@/utils/image";
 import Link from "next/link";
 import {castUrl} from "@/utils/url";
+import {isUsingOphimApi} from "@/utils/axios";
 
-const MovieCastsFull = ({movieId}) => {
+const TMDB_CAST_PREFIX = '/dien-vien/tmdb/'
+
+const MovieCastsFull = ({movieId, movie}) => {
   const [casts, setCasts] = useState([])
 
   const getCasts = async () => {
+    if (isUsingOphimApi()) {
+      const base = (movie?.casts || [])
+      if (base.length === 0) return
+
+      if (movie?.tmdb_id) {
+        const tmdbCasts = await TmdbApi.credits(movie.tmdb_id, movie.tmdb_type)
+        if (tmdbCasts.length > 0) {
+          const normalize = (s) => s?.toLowerCase().trim()
+          const enriched = base.map(c => {
+            const matched = tmdbCasts.find(t => normalize(t.cast.name) === normalize(c.name))
+            return {
+              _id: c._id,
+              tmdb_id: matched?.tmdb_id || null,
+              cast: {
+                _id: c._id,
+                name: c.name,
+                slug: c.slug,
+                profile_path: matched?.cast.profile_path || null,
+                character: matched?.cast.character || null,
+              }
+            }
+          })
+          setCasts(enriched)
+          return
+        }
+      }
+
+      setCasts(base.map(c => ({
+        _id: c._id,
+        tmdb_id: null,
+        cast: {_id: c._id, name: c.name, slug: c.slug, profile_path: null, character: null}
+      })))
+      return
+    }
     const res = await MovieApi.casts(movieId)
     setCasts(res)
   }
 
   useEffect(() => {
     getCasts()
-    // console.log('render movie casts')
   }, [])
 
   return (
@@ -27,19 +64,21 @@ const MovieCastsFull = ({movieId}) => {
       <div className="box-body">
         <div className="de-actors">
           {casts.map(item => {
-            const href = item.tmdb_id ? `/dien-vien/tmdb/${item.tmdb_id}` : castUrl(item.cast)
+            const href = item.tmdb_id ? `${TMDB_CAST_PREFIX}${item.tmdb_id}` : castUrl(item.cast)
             return (
               <div className="item-actor" key={`cast-f-${item._id}`}>
                 <div className="v-item">
-                  <Link href={href} className="v-actor">
-                    <img src={peopleAvatar(item.cast.profile_path)} alt={item.cast.name}/>
-                  </Link>
+                  {href
+                    ? <Link href={href} className="v-actor"><img src={peopleAvatar(item.cast.profile_path)} alt={item.cast.name}/></Link>
+                    : <span className="v-actor"><img src={peopleAvatar(item.cast.profile_path)} alt={item.cast.name}/></span>
+                  }
                   <div className="info">
-                    <h4 className="item-title"><Link href={href}>{item.cast.name}</Link></h4>
-                    <div className="ro-play"><span>{item.character}</span></div>
+                    <h4 className="item-title">
+                      {href ? <Link href={href}>{item.cast.name}</Link> : item.cast.name}
+                    </h4>
+                    {item.cast.character && <div className="ro-play"><span>{item.cast.character}</span></div>}
                   </div>
                 </div>
-                <div className="ro-play"></div>
               </div>
             )
           })}

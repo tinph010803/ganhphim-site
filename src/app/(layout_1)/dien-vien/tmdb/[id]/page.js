@@ -1,6 +1,6 @@
 import TmdbApi, {TMDB_IMG} from "@/api/tmdb.api";
 import {notFound} from "next/navigation";
-import Link from "next/link";
+import TmdbMovieList from "@/components/cast/TmdbMovieList";
 
 export async function generateMetadata({params}) {
     const {id} = await params
@@ -87,38 +87,7 @@ const TmdbCastPage = async ({params}) => {
 
                 {/* ── Main: filmography grid ── */}
                 <div className="ac-main">
-                    <div className="actor-film">
-                        <div className="cg-body-box pt-0 is-suggest">
-                            <div className="box-header">
-                                <div className="heading-sm mb-0">Các phim đã tham gia</div>
-                            </div>
-                            <div className="box-body">
-                                <div className="cards-grid-wrapper de-suggest">
-                                    {credits.map(item => {
-                                        const poster = item.poster_path
-                                            ? `${TMDB_IMG}/w300${item.poster_path}`
-                                            : '/images/thumbs/default.jpg'
-                                        const title = item.title || item.name || 'Không rõ'
-                                        const year = (item.release_date || item.first_air_date || '').slice(0, 4)
-                                        const searchUrl = `/tim-kiem?q=${encodeURIComponent(title)}`
-                                        return (
-                                            <div className="movie-item" key={`tmdb-credit-${item.id}-${item.media_type}`}>
-                                                <Link href={searchUrl} className="mi-thumb">
-                                                    <img src={poster} alt={title} loading="lazy"/>
-                                                </Link>
-                                                <div className="mi-info">
-                                                    <h3 className="mi-title lim-2">
-                                                        <Link href={searchUrl}>{title}</Link>
-                                                    </h3>
-                                                    {year && <div className="mi-year">{year}</div>}
-                                                </div>
-                                            </div>
-                                        )
-                                    })}
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+                    <TmdbMovieList credits={credits}/>
                 </div>
             </div>
         </div>
