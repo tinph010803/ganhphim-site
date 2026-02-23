@@ -3,35 +3,35 @@ import {genSlug} from "@/utils/helpers";
 const ROBONG_DOMAIN = "https://robong.tv"
 
 const movieDetailUrl = (movie) => {
-    return `/phim/${movie.slug}.${movie.public_id}`
+    return `/phim/${movie.slug}`
 }
 
 const movieWatchUrl = (movie) => {
-    return `/xem-phim/${movie.slug}.${movie.public_id}`
+    return `/xem-phim/${movie.slug}`
 }
 
 const genreUrl = (genre) => {
-    return `/the-loai/${genre.slug}.${genre._id}`
+    return `/the-loai/${genre.slug}`
 }
 
 const countryUrl = (country) => {
-    return `/quoc-gia/${country.slug}.${country._id}`
+    return `/quoc-gia/${country.slug}`
 }
 
 const productionCompanyUrl = (production) => {
-    return `/nha-san-xuat/${production.slug}.${production._id}`
+    return `/nha-san-xuat/${production.slug}`
 }
 
 const directorUrl = (director) => {
-    return `/dao-dien/${director.slug}.${director._id}`
+    return `/dao-dien/${director.slug}`
 }
 
 const castUrl = (cast) => {
-    return `/dien-vien/${cast.slug}.${cast._id}`
+    return `/dien-vien/${cast.slug}`
 }
 
 const networkUrl = (network) => {
-    return `/network/${network.slug}.${network._id}`
+    return `/network/${network.slug}`
 }
 
 const userFavoriteUrl = () => {
@@ -54,7 +54,7 @@ const homeUrl = () => {
     return `/phimhay`
 }
 const collectionUrl = (collection) => {
-    return `/c/${collection.slug}.${collection._id}`
+    return `/c/${collection.slug}`
 }
 
 const w2gRoomUrl = (room) => {

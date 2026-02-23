@@ -16,7 +16,7 @@ const LatestComments = () => {
     const getLatestComments = async () => {
         try {
             const {result} = await CommentApi.latestComments()
-            setComments(result)
+            setComments(result || [])
         } catch (error) {
         }
     }

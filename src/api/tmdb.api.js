@@ -65,6 +65,16 @@ class TmdbApi {
         return await tmdbFetch(`/person/${personId}`)
     }
 
+    // Search movie/tv by title to find TMDB ID
+    searchMovie = async (title, year = null) => {
+        const extra = year ? `&year=${year}` : ''
+        const movieData = await tmdbFetch('/search/movie', 'vi-VN', `&query=${encodeURIComponent(title)}&page=1${extra}`)
+        if (movieData?.results?.length > 0) return {id: movieData.results[0].id, type: 'movie'}
+        const tvData = await tmdbFetch('/search/tv', 'vi-VN', `&query=${encodeURIComponent(title)}&page=1${extra}`)
+        if (tvData?.results?.length > 0) return {id: tvData.results[0].id, type: 'tv'}
+        return null
+    }
+
     // Movies/TV the person was in
     personCredits = async (personId) => {
         const data = await tmdbFetch(`/person/${personId}/combined_credits`)

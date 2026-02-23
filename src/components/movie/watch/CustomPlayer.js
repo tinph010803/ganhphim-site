@@ -78,6 +78,10 @@ const CustomPlayer = ({url, poster, title, onEnded, onNext, seasons = [], curSea
             const Hls = (await import('hls.js')).default
 
             if (hlsRef.current) {
+                if (videoRef.current) {
+                    videoRef.current.pause()
+                    videoRef.current.src = ''
+                }
                 hlsRef.current.destroy()
                 hlsRef.current = null
             }
@@ -111,6 +115,10 @@ const CustomPlayer = ({url, poster, title, onEnded, onNext, seasons = [], curSea
 
         return () => {
             if (hlsRef.current) {
+                if (videoRef.current) {
+                    videoRef.current.pause()
+                    videoRef.current.src = ''
+                }
                 hlsRef.current.destroy()
                 hlsRef.current = null
             }
@@ -193,7 +201,7 @@ const CustomPlayer = ({url, poster, title, onEnded, onNext, seasons = [], curSea
     const togglePlay = useCallback(() => {
         const video = videoRef.current
         if (!video) return
-        video.paused ? video.play() : video.pause()
+        video.paused ? video.play().catch(() => {}) : video.pause()
     }, [])
 
     const skip = useCallback((sec) => {

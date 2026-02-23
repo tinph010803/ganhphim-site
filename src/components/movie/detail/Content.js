@@ -9,6 +9,7 @@ import MovieEpisodes from "@/components/movie/Episodes";
 import useVersionUpdater from "@/hooks/useVersionUpdater";
 import MovieGallery from "@/components/movie/Gallery";
 import MovieOst from "@/components/movie/Ost";
+import GtavnServers from "@/components/movie/watch/GtavnServers";
 
 const MovieDetailContent = ({movie}) => {
     useVersionUpdater({movie, page: "detail"})
@@ -26,8 +27,12 @@ const MovieDetailContent = ({movie}) => {
             </div>
             <Tab.Content>
                 {!movie.is_upcoming && (<Tab.Pane eventKey="episodes">
-                    {movie.type === 1 ? <MovieVersions movie={movie} page={`detail`}/> :
-                        <MovieEpisodes movie={movie} page={`detail`}/>}
+                    {movie.gtavn_servers
+                        ? <GtavnServers movie={movie} page="detail"/>
+                        : (movie.type === 1
+                            ? <MovieVersions movie={movie} page={`detail`}/>
+                            : <MovieEpisodes movie={movie} page={`detail`}/>)
+                    }
                 </Tab.Pane>)}
                 <Tab.Pane eventKey="gallery">
                     <MovieGallery movieId={movie._id}/>

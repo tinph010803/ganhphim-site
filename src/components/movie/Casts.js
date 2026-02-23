@@ -2,10 +2,19 @@
 
 import {memo, useEffect, useState} from "react";
 import MovieApi from "@/api/movie.api";
-import TmdbApi from "@/api/tmdb.api";
 import {peopleAvatar} from "@/utils/image";
 import Link from "next/link";
-import {isUsingOphimApi} from "@/utils/axios";
+import {isUsingOphimApi, isUsingGtavnApi} from "@/utils/axios";
+
+const fetchTmdbCredits = async (tmdbId, tmdbType) => {
+  try {
+    const res = await fetch(`/web-api/tmdb/credits?tmdbId=${tmdbId}&tmdbType=${tmdbType || 'movie'}`)
+    if (!res.ok) return []
+    return res.json()
+  } catch {
+    return []
+  }
+}
 
 const TMDB_CAST_PREFIX = '/dien-vien/tmdb/'
 
@@ -13,36 +22,29 @@ const MovieCasts = ({movieId, movie}) => {
   const [casts, setCasts] = useState([])
 
   const getCasts = async () => {
-    if (isUsingOphimApi()) {
-      // Base list: actors from OPhim's actor field
-      const base = (movie?.casts || [])
-      if (base.length === 0) return
+    if (isUsingOphimApi() || isUsingGtavnApi()) {
+      let tmdbId = movie?.tmdb_id
+      let tmdbType = movie?.tmdb_type
 
-      // Try to enrich with TMDB photos by name matching
-      if (movie?.tmdb_id) {
-        const tmdbCasts = await TmdbApi.credits(movie.tmdb_id, movie.tmdb_type)
-        if (tmdbCasts.length > 0) {
-          const normalize = (s) => s?.toLowerCase().trim()
-          const enriched = base.map(c => {
-            const matched = tmdbCasts.find(t => normalize(t.cast.name) === normalize(c.name))
-            return {
-              _id: c._id,
-              tmdb_id: matched?.tmdb_id || null,
-              cast: {
-                _id: c._id,
-                name: c.name,
-                slug: c.slug,
-                profile_path: matched?.cast.profile_path || null,
-                character: matched?.cast.character || null,
-              }
-            }
-          })
-          setCasts(enriched)
-          return
+      // If no tmdb_id, try searching by title
+      if (!tmdbId && movie?.title) {
+        const res = await fetch(`/web-api/tmdb/search-movie?title=${encodeURIComponent(movie.english_title || movie.title)}&year=${movie.year || ''}`)
+        if (res.ok) {
+          const found = await res.json()
+          if (found?.id) { tmdbId = found.id; tmdbType = found.type }
         }
       }
 
-      // Fallback: name-only list
+      if (tmdbId) {
+        const tmdbCasts = await fetchTmdbCredits(tmdbId, tmdbType)
+        if (tmdbCasts.length > 0) {
+          setCasts(tmdbCasts)
+          return
+        }
+      }
+      // Fallback: local names without photos
+      const base = (movie?.casts || [])
+      if (base.length === 0) return
       setCasts(base.map(c => ({
         _id: c._id,
         tmdb_id: null,

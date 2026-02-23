@@ -1,4 +1,4 @@
-import {getAPI, isUsingOphimApi} from "@/utils/axios";
+import {getAPI, isUsingOphimApi, isUsingGtavnApi} from "@/utils/axios";
 import {unstable_cache} from "next/cache";
 import TmdbApi from "@/api/tmdb.api";
 
@@ -20,7 +20,7 @@ class CastApi {
   }
 
   list = async (filter) => {
-    if (isUsingOphimApi()) {
+    if (isUsingOphimApi() || isUsingGtavnApi()) {
       const page = Number(filter?.page || 1)
       const keyword = filter?.keyword || filter?.q || ''
       if (keyword) {

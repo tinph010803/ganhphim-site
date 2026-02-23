@@ -5,12 +5,14 @@ import MoviePlaylistButton from "@/components/playlist/Button";
 import {memo, useEffect, useState} from "react";
 import MovieShareButton from "@/components/movie/share/Button";
 import Link from "next/link";
-import {useAppSelector} from "@/hooks/redux";
+import {useAppDispatch, useAppSelector} from "@/hooks/redux";
 import MovieReportButton from "@/components/movie/report/Button";
 import UserApi from "@/api/user.api";
 import {playerPostMessage} from "@/utils/helpers";
+import {setReduceLag} from "@/redux/features/movieSlice";
 
 const ActionBar = ({movie}) => {
+    const dispatch = useAppDispatch()
     const [cinemaMode, setCinemaMode] = useState(false)
     const [autoNextEpisode, setAutoNextEpisode] = useState(true)
     const [autoSkipIntro, setAutoSkipIntro] = useState(false)
@@ -19,6 +21,7 @@ const ActionBar = ({movie}) => {
     const {
         curEpisode,
         curSeason,
+        reduceLag,
     } = useAppSelector((state) => state.movie)
 
     const loggedUser = useAppSelector(s => s.auth.loggedUser)
@@ -63,6 +66,10 @@ const ActionBar = ({movie}) => {
         await UserApi.saveSettings({auto_skip_intro: !autoSkipIntro})
     }
 
+    const handleReduceLagClick = () => {
+        dispatch(setReduceLag(!reduceLag))
+    }
+
     return (
         <div className="line-center player-control">
             {movie.is_upcoming && (<div className="pc-coming primary-gradient">
@@ -85,6 +92,11 @@ const ActionBar = ({movie}) => {
                 <div className={`item item-focus toggle-basic-label ${cinemaMode ? 'is-on' : ''}`}
                      onClick={handleCinemaModeClick}>
                     <span>Rạp phim</span>
+                    <div className="toggle-basic"></div>
+                </div>
+                <div className={`item item-auto toggle-basic-label ${reduceLag ? 'is-on' : ''}`}
+                     onClick={handleReduceLagClick}>
+                    <span>Giảm Lag</span>
                     <div className="toggle-basic"></div>
                 </div>
                 <Link

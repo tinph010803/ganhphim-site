@@ -140,13 +140,14 @@ export const commentSlice = createSlice({
     },
     extraReducers(builder) {
         builder.addCase(fetchComments.fulfilled, (state, action) => {
+            const payload = action.payload || {}
             if (state.commentFocus) {
-                state.comments = action.payload.items.filter(el => el._id !== state.commentFocus._id)
+                state.comments = (payload.items || []).filter(el => el._id !== state.commentFocus._id)
             } else {
-                state.comments = action.payload.items
+                state.comments = payload.items || []
             }
-            state.total_comments = action.payload.item_count
-            state.hasMore = action.payload.has_more
+            state.total_comments = payload.item_count ?? 0
+            state.hasMore = payload.has_more ?? false
             state.isLoading = false
         })
         builder.addCase(fetchComments.pending, (state, action) => {
@@ -155,8 +156,9 @@ export const commentSlice = createSlice({
             state.hasMore = false
         })
         builder.addCase(fetchMoreComments.fulfilled, (state, action) => {
-            state.comments = [...state.comments, ...action.payload.items]
-            state.hasMore = action.payload.has_more
+            const payload = action.payload || {}
+            state.comments = [...state.comments, ...(payload.items || [])]
+            state.hasMore = payload.has_more ?? false
             state.isLoadingMore = false
         })
         builder.addCase(fetchMoreComments.pending, (state, action) => {

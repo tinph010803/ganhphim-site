@@ -22,6 +22,7 @@ import Cookies from 'js-cookie'
 import BannerCenter from "@/components/ads/BannerCenter";
 import AdsBannerSidebar from "@/components/ads/BannerSidebar";
 import AdsBannerCenter from "@/components/ads/BannerCenter";
+import GtavnServers from "@/components/movie/watch/GtavnServers";
 
 const MovieWatchContent = ({movie}) => {
     useEffect(() => {
@@ -83,8 +84,12 @@ const MovieWatchContent = ({movie}) => {
                         </div>
                     </div>
                     {!movie.is_upcoming && (<div id="episodes-list" className="wm-episodes">
-                        {movie.type === 1 ? <MovieVersions movie={movie} page={`watch`}/> :
-                            <MovieEpisodes movie={movie} page={`watch`}/>}
+                        {movie.gtavn_servers
+                            ? <GtavnServers movie={movie} page="watch"/>
+                            : (movie.type === 1
+                                ? <MovieVersions movie={movie} page={`watch`}/>
+                                : <MovieEpisodes movie={movie} page={`watch`}/>)
+                        }
                     </div>)}
                     <AdsBannerCenter page="movie_watch" position="center_1"/>
                     <MovieCommentWidget movie={movie} page={"watch"}/>

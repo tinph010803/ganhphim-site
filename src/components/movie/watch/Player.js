@@ -18,7 +18,7 @@ import {useSearchParams} from "next/navigation";
 import {playerPostMessage} from "@/utils/helpers"
 import UserApi from "@/api/user.api";
 import PlayerApi from "@/api/player.api";
-import {isUsingOphimApi} from "@/utils/axios";
+import {isUsingOphimApi, isUsingGtavnApi} from "@/utils/axios";
 import CustomPlayer from "@/components/movie/watch/CustomPlayer";
 import MovieApi from "@/api/movie.api";
 
@@ -39,6 +39,7 @@ const MoviePlayer = ({movie}) => {
         cwInfo,
         cwInfoLoading,
         clickedEpisode,
+        reduceLag,
     } = useAppSelector(state => state.movie)
     const {loggedUser} = useAppSelector(state => state.auth)
     const intervalRef = useRef(null)
@@ -46,9 +47,9 @@ const MoviePlayer = ({movie}) => {
     useVersionUpdater({movie, page: "watch"})
     useGetCwInfo({movie})
 
-    // Fetch seasons for series
+    // Fetch seasons for series (skip for GtaVN — GtavnServers handles it)
     useEffect(() => {
-        if (movie.type === 1) return
+        if (movie.type === 1 || isUsingGtavnApi()) return
         MovieApi.seasons(movie.slug || movie._id).then(res => {
             if (res && res.length > 0) setSeasons(res)
         })
@@ -137,8 +138,8 @@ const MoviePlayer = ({movie}) => {
     }, [loggedUser, curEpisode, curSeason, curVersion]);
 
     const buildPlayerUrl = async () => {
-        // OPhim: use link_embed directly (https://player.phimapi.com/player/?url=...)
-        if (isUsingOphimApi()) {
+        // OPhim / GtaVn: use link_embed directly from curEpisode.versions
+        if (isUsingOphimApi() || isUsingGtavnApi()) {
             const episodeToUse = curEpisode
             if (episodeToUse?.versions?.length > 0) {
                 const version = episodeToUse.versions.find(v => v.type == curVersion) || episodeToUse.versions[0]
@@ -177,7 +178,7 @@ const MoviePlayer = ({movie}) => {
     useEffect(() => {
         const initPlayerUrl = async () => {
             if (!cwInfoLoading && isFirstLoad) {
-                const canBuild = isUsingOphimApi()
+                const canBuild = (isUsingOphimApi() || isUsingGtavnApi())
                     ? (curEpisode != null)
                     : ((movie.type === 1 && curVersion) || (movie.type !== 1 && curEpisode))
 
@@ -192,9 +193,9 @@ const MoviePlayer = ({movie}) => {
         initPlayerUrl()
     }, [curEpisode, cwInfoLoading, cwInfo, curVersion, loggedUser]);
 
-    // OPhim: rebuild player URL whenever episode/version changes
+    // OPhim / GtaVn: rebuild player URL whenever episode/version changes
     useEffect(() => {
-        if (!isUsingOphimApi() || isFirstLoad) return;
+        if (!(isUsingOphimApi() || isUsingGtavnApi()) || isFirstLoad) return;
         if (!curEpisode) return;
         const version = curEpisode.versions?.find(v => v.type == curVersion) || curEpisode.versions?.[0]
         const url = version?.link || ''
@@ -304,7 +305,7 @@ const MoviePlayer = ({movie}) => {
             </div>}
             {(() => {
                 const m3u8 = (curEpisode?.versions?.find(v => v.type == curVersion) || curEpisode?.versions?.[0])?.m3u8
-                if (m3u8) {
+                if (m3u8 && !reduceLag) {
                     return (
                         <CustomPlayer
                             key={m3u8}

@@ -104,8 +104,12 @@ class CollectionApi {
 
   allTopics = async () => {
     if (isUsingOphimApi()) return {result: {items: OPHIM_TOPICS, more: 0}}
-    const result = await getAPI({path: `${API_PREFIX}/allTopics`});
-    return result;
+    try {
+      const result = await getAPI({path: `${API_PREFIX}/allTopics`});
+      return result;
+    } catch (e) {
+      return {result: {items: [], more: 0}}
+    }
   }
 
   movies = async (id) => {

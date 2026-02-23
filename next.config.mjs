@@ -50,96 +50,35 @@ const nextConfig = {
 
     async redirects() {
         return [
-            {
-                destination: '/c/:slug.:id',
-                source: '/c/:slug/:id',
-                permanent: true,
-            },
-            {
-                destination: '/phim/:slug.:id',
-                source: '/phim/:slug/:id',
-                permanent: true,
-            },
-            {
-                destination: '/xem-phim/:slug.:id',
-                source: '/xem-phim/:slug/:id',
-                permanent: true,
-            },
-            {
-                destination: '/the-loai/:slug.:id',
-                source: '/the-loai/:slug/:id',
-                permanent: true,
-            },
-            {
-                destination: '/quoc-gia/:slug.:id',
-                source: '/quoc-gia/:slug/:id',
-                permanent: true,
-            },
-            {
-                destination: '/dien-vien/:slug.:id',
-                source: '/dien-vien/:slug/:id',
-                permanent: true,
-            },
-            {
-                destination: '/dao-dien/:slug.:id',
-                source: '/dao-dien/:slug/:id',
-                permanent: true,
-            },
-            {
-                destination: '/network/:slug.:id',
-                source: '/network/:slug/:id',
-                permanent: true,
-            },
-            {
-                destination: '/nha-san-xuat/:slug.:id',
-                source: '/nha-san-xuat/:slug/:id',
-                permanent: true,
-            },
-            {
-                destination: '/app-rophim',
-                source: '/rophim-app',
-                permanent: true,
-            },
+            // Old slug/id (slash format) → clean slug
+            { source: '/c/:slug/:id', destination: '/c/:slug', permanent: true },
+            { source: '/phim/:slug/:id', destination: '/phim/:slug', permanent: true },
+            { source: '/xem-phim/:slug/:id', destination: '/xem-phim/:slug', permanent: true },
+            { source: '/the-loai/:slug/:id', destination: '/the-loai/:slug', permanent: true },
+            { source: '/quoc-gia/:slug/:id', destination: '/quoc-gia/:slug', permanent: true },
+
+            { source: '/dao-dien/:slug/:id', destination: '/dao-dien/:slug', permanent: true },
+            { source: '/network/:slug/:id', destination: '/network/:slug', permanent: true },
+            { source: '/nha-san-xuat/:slug/:id', destination: '/nha-san-xuat/:slug', permanent: true },
+            // Old slug.id (dot format) → clean slug
+            { source: '/c/:slug.:id', destination: '/c/:slug', permanent: true },
+            { source: '/phim/:slug.:id', destination: '/phim/:slug', permanent: true },
+            { source: '/xem-phim/:slug.:id', destination: '/xem-phim/:slug', permanent: true },
+            { source: '/the-loai/:slug.:id', destination: '/the-loai/:slug', permanent: true },
+            { source: '/quoc-gia/:slug.:id', destination: '/quoc-gia/:slug', permanent: true },
+
+            { source: '/dao-dien/:slug.:id', destination: '/dao-dien/:slug', permanent: true },
+            { source: '/network/:slug.:id', destination: '/network/:slug', permanent: true },
+            { source: '/nha-san-xuat/:slug.:id', destination: '/nha-san-xuat/:slug', permanent: true },
+            { source: '/rophim-app', destination: '/app-rophim', permanent: true },
         ]
     },
 
     async rewrites() {
         return [
             {
-                source: '/c/:slug.:id',
-                destination: '/chu-de/:slug/:id',
-            },
-            {
-                source: '/phim/:slug.:id',
-                destination: '/phim/:slug/:id',
-            },
-            {
-                source: '/xem-phim/:slug.:id',
-                destination: '/xem-phim/:slug/:id',
-            },
-            {
-                source: '/the-loai/:slug.:id',
-                destination: '/the-loai/:slug/:id',
-            },
-            {
-                source: '/quoc-gia/:slug.:id',
-                destination: '/quoc-gia/:slug/:id',
-            },
-            {
-                source: '/dien-vien/:slug.:id',
-                destination: '/dien-vien/:slug/:id',
-            },
-            {
-                source: '/dao-dien/:slug.:id',
-                destination: '/dao-dien/:slug/:id',
-            },
-            {
-                source: '/network/:slug.:id',
-                destination: '/network/:slug/:id',
-            },
-            {
-                source: '/nha-san-xuat/:slug.:id',
-                destination: '/nha-san-xuat/:slug/:id',
+                source: '/c/:slug',
+                destination: '/chu-de/:slug',
             },
             {
                 source: '/sitemap.xml',

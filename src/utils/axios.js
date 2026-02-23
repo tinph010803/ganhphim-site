@@ -15,6 +15,11 @@ const isUsingOphimApi = () => {
     return /ophim1\.com/i.test(base);
 };
 
+const isUsingGtavnApi = () => {
+    const base = getBaseURL() || "";
+    return /gtavn\.network/i.test(base);
+};
+
 let isRefreshing = false;
 let refreshQueue = [];
 
@@ -54,7 +59,7 @@ axiosInstance.interceptors.response.use(
 
         if (!response) return Promise.reject(error);
 
-        if(original.url.includes("/auth/refreshTokens")) return Promise.reject(error)
+        if(original.url.includes("/auth/refreshTokens") || original.url.includes("/auth/refresh")) return Promise.reject(error)
 
         if (status === REFRESH_STATUS && !original._retry) {
             original._retry = true;
@@ -142,4 +147,5 @@ export {
     deleteAPI,
     getBaseURL,
     isUsingOphimApi,
+    isUsingGtavnApi,
 };

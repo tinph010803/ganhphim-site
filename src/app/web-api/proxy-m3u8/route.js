@@ -39,11 +39,37 @@ export async function GET(request) {
         if (isM3u8) {
             const text = await upstream.text()
             const baseUrl = url.substring(0, url.lastIndexOf('/') + 1)
+            const origin = parsed.origin // e.g. https://s2.phim1280.tv
 
-            const rewritten = text.replace(/^(?!#)([^\n\r]+)/gm, (match) => {
+            // Lọc bỏ các segment quảng cáo (adjump, adinsert...) cùng thẻ #EXTINF phía trên
+            const lines = text.split('\n')
+            const filteredLines = []
+            for (let i = 0; i < lines.length; i++) {
+                const trimmed = lines[i].trim()
+                // Nếu dòng này là segment URL mà chứa path quảng cáo → bỏ dòng này + #EXTINF trước đó
+                if (!trimmed.startsWith('#') && trimmed && /\/(adjump|adinsert|adsegment)\//i.test(trimmed)) {
+                    // Xóa thẻ #EXTINF đã push trước đó (nếu có)
+                    if (filteredLines.length > 0 && filteredLines[filteredLines.length - 1].startsWith('#EXTINF')) {
+                        filteredLines.pop()
+                    }
+                    continue // bỏ qua segment quảng cáo
+                }
+                filteredLines.push(lines[i])
+            }
+            const cleanText = filteredLines.join('\n')
+
+            const rewritten = cleanText.replace(/^(?!#)([^\n\r]+)/gm, (match) => {
                 const trimmed = match.trim()
                 if (!trimmed) return match
-                const absUrl = /^https?:\/\//i.test(trimmed) ? trimmed : baseUrl + trimmed
+                let absUrl
+                if (/^https?:\/\//i.test(trimmed)) {
+                    absUrl = trimmed
+                } else if (trimmed.startsWith('/')) {
+                    // Path tuyệt đối: resolve từ origin, không phải từ baseUrl
+                    absUrl = origin + trimmed
+                } else {
+                    absUrl = baseUrl + trimmed
+                }
                 return `/web-api/proxy-m3u8?url=${encodeURIComponent(absUrl)}`
             })
 

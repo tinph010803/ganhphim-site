@@ -1,6 +1,5 @@
-import {getAPI} from "@/utils/axios";
+import {getAPI, isUsingOphimApi, isUsingGtavnApi} from "@/utils/axios";
 import {unstable_cache} from "next/cache";
-import {isUsingOphimApi} from "@/utils/axios";
 
 const API_PREFIX = '/country'
 
@@ -18,6 +17,13 @@ class CountryApi {
         code: country.slug,
       }
     }
+    if (isUsingGtavnApi()) {
+      const res = await getAPI({path: `/quoc-gia`})
+      const items = res?.data || []
+      const country = items.find((el) => el.id === id || el.slug === id)
+      if (!country) return null
+      return {_id: country.id, name: country.name, slug: country.slug, code: country.slug}
+    }
 
     const result = await getAPI({path: `${API_PREFIX}/detail/${id}`});
     return result;
@@ -32,6 +38,10 @@ class CountryApi {
     if (isUsingOphimApi()) {
       const res = await getAPI({path: `/quoc-gia`, version: ''})
       return {result: (res?.data?.items || []).map((item) => ({_id: item._id, name: item.name, slug: item.slug, code: item.slug}))}
+    }
+    if (isUsingGtavnApi()) {
+      const res = await getAPI({path: `/quoc-gia`})
+      return {result: (res?.data || []).map((item) => ({_id: item.id, name: item.name, slug: item.slug, code: item.slug}))}
     }
 
     const result = await getAPI({path: `${API_PREFIX}/list`});

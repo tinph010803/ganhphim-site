@@ -29,7 +29,6 @@ export const config = {
         '/dien-vien/:slug.:id',
         '/nha-san-xuat/:slug.:id',
         '/phim/:slug.:id',
-        '/xem-phim/:slug.:id',
         '/c/:slug.:id',
     ],
 }

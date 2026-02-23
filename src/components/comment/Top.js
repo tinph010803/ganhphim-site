@@ -18,8 +18,9 @@ const TopComments = () => {
 
   const getTopComments = async () => {
     try {
-      const {result} = await CommentApi.topComments()
-      setComments(result)
+      const res = await CommentApi.topComments()
+      const items = res?.result || res?.data?.items || []
+      setComments(Array.isArray(items) ? items : [])
     } catch (error) {
     }
   }

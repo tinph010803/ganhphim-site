@@ -27,7 +27,9 @@ const initialState = {
     animeMovies: [],
     hongKongMovies: [],
     horrorMovies: [],
-    showReportModal: false
+    showReportModal: false,
+    curGtavnServer: 'server_1',
+    reduceLag: false
 }
 
 export const fetchHotMovies = createAsyncThunk(
@@ -179,9 +181,16 @@ export const movieSlice = createSlice({
             state.curVersionPlayer = null
             state.cwInfo = null
             state.videoEnded = false
+            state.curGtavnServer = 'server_1'
         },
         toggleShowReportModal: (state, action) => {
             state.showReportModal = !state.showReportModal
+        },
+        setCurGtavnServer: (state, action) => {
+            state.curGtavnServer = action.payload
+        },
+        setReduceLag: (state, action) => {
+            state.reduceLag = action.payload
         }
     },
     extraReducers(builder) {
@@ -269,6 +278,8 @@ export const {
     setCwMoviesHome,
     setCwMoviesList,
     resetWatchData,
-    toggleShowReportModal
+    toggleShowReportModal,
+    setCurGtavnServer,
+    setReduceLag
 } = movieSlice.actions
 export default movieSlice.reducer

@@ -1,6 +1,5 @@
-import {getAPI, postAPI} from "@/utils/axios";
+import {getAPI, postAPI, isUsingOphimApi, isUsingGtavnApi} from "@/utils/axios";
 import {unstable_cache} from "next/cache";
-import {isUsingOphimApi} from "@/utils/axios";
 
 const API_PREFIX = '/movie'
 
@@ -149,12 +148,129 @@ const mapOphimPageCount = (pagination) => {
     return Math.ceil(totalItems / perPage)
 }
 
+// ─── GTAVN helpers ──────────────────────────────────────────────────────────
+const isGtavnObj = (val) => val && typeof val === 'object' && !Array.isArray(val)
+
+const gtavnImg = (imgObj) => {
+    if (!imgObj) return ''
+    if (typeof imgObj === 'string') return imgObj
+    if (isGtavnObj(imgObj)) {
+        const vals = Object.values(imgObj)
+        return vals[0] || ''
+    }
+    return ''
+}
+
+export const normalizeGtavnListItem = (item) => {
+    const epCurrentRaw = isGtavnObj(item.episode_current)
+        ? Object.values(item.episode_current)[0]
+        : item.episode_current
+    const episodeNumber = parseEpisodeNumber(epCurrentRaw)
+    const quality = (item.quality || '').toLowerCase()
+    const posterUrl = gtavnImg(item.poster)
+    const thumbUrl = gtavnImg(item.thumb)
+    return {
+        _id: item._id,
+        public_id: item._id,
+        slug: item.slug,
+        title: item.name,
+        english_title: item.origin_name || item.name,
+        type: mapOphimType(item.type),
+        status: item.status === 'completed' || /hoàn tất|full/i.test(epCurrentRaw || '')
+            ? 'Ended'
+            : item.status === 'ongoing' ? 'On Going'
+            : item.status === 'trailer' ? 'Trailer'
+            : 'Released',
+        quality,
+        overview: (item.content || '').replace(/<[^>]*>/g, '').slice(0, 300),
+        year: item.year,
+        latest_episode: episodeNumber ? {'1': episodeNumber} : {'1': 1},
+        genres: (item.categories || []).map((g) => ({_id: g.id, name: g.name, slug: g.slug})),
+        countries: (item.countries || []).map((c) => ({_id: c.id, name: c.name, slug: c.slug, code: c.slug})),
+        images: {
+            posters: [{path: posterUrl || thumbUrl}],
+            backdrops: [{path: thumbUrl || posterUrl}],
+            titles: [],
+        },
+    }
+}
+
+const normalizeGtavnDetail = (data) => {
+    const movie = data?.item
+    if (!movie) return null
+    const epCurrentRaw = isGtavnObj(movie.episode_current)
+        ? Object.values(movie.episode_current)[0]
+        : (movie.episode_current || null)
+    const episodeNumber = parseEpisodeNumber(epCurrentRaw)
+    const posterUrl = gtavnImg(movie.poster)
+    const thumbUrl = gtavnImg(movie.thumb)
+    return {
+        _id: movie._id,
+        public_id: movie._id,
+        slug: movie.slug,
+        title: movie.name,
+        english_title: movie.origin_name || movie.name,
+        overview: (movie.content || '').replace(/<[^>]*>/g, ''),
+        type: mapOphimType(movie.type),
+        status: movie.status === 'completed' ? 'Ended'
+            : movie.status === 'ongoing' ? 'On Going'
+            : movie.status === 'trailer' ? 'Trailer'
+            : 'Released',
+        quality: (movie.quality || '').toLowerCase(),
+        year: movie.year,
+        imdb_rating: parseFloat(movie.imdb?.vote_average || movie.tmdb?.vote_average || 0) || 0,
+        tmdb_id: movie.tmdb?.id || null,
+        tmdb_type: movie.tmdb?.type || null,
+        latest_episode: {'1': episodeNumber || 1},
+        total_episodes: parseTotalEpisodes(
+            isGtavnObj(movie.episode_total)
+                ? Object.values(movie.episode_total)[0]
+                : movie.episode_total
+        ),
+        genres: (movie.categories || []).map((g) => ({_id: g.id, name: g.name, slug: g.slug})),
+        countries: (movie.countries || []).map((c) => ({_id: c.id, name: c.name, slug: c.slug, code: c.slug})),
+        images: {
+            posters: [{path: posterUrl || thumbUrl}],
+            backdrops: [{path: thumbUrl || posterUrl}],
+            titles: [],
+        },
+        networks: [],
+        production_companies: [],
+        directors: (movie.director || []).filter(Boolean).map((name, i) => ({_id: `d_${i}`, name, slug: name})),
+        casts: (movie.actor || []).filter(Boolean).map((name, i) => ({_id: `c_${i}`, name, slug: name})),
+        runtime: null,
+        gtavn_servers: isGtavnObj(movie.episodes) ? movie.episodes : null,
+        episodes: Array.isArray(movie.episodes)
+            ? movie.episodes
+            : Object.entries(movie.episodes || {}).filter(([, v]) => v).flatMap(([, serverGroups]) =>
+                Array.isArray(serverGroups) ? serverGroups : []
+            ),
+        lang_key: [],
+    }
+}
+
+const mapGtavnPageCount = (pagination) => {
+    if (!pagination) return 0
+    if (pagination.totalPages) return Number(pagination.totalPages)
+    const total = Number(pagination.totalItems || 0)
+    const perPage = Number(pagination.totalItemsPerPage || pagination.itemsPerPage || 24)
+    return perPage > 0 ? Math.ceil(total / perPage) : 0
+}
+
 class MovieApi {
     detail = unstable_cache(async (id) => {
         if (isUsingOphimApi()) {
             try {
                 const res = await getAPI({path: `/phim/${id}`, version: ''})
                 return normalizeOphimDetail(res?.data)
+            } catch (e) {
+                return null
+            }
+        }
+        if (isUsingGtavnApi()) {
+            try {
+                const res = await getAPI({path: `/phim/${id}`})
+                return normalizeGtavnDetail(res?.data)
             } catch (e) {
                 return null
             }
@@ -179,6 +295,10 @@ class MovieApi {
                 } catch { return base }
             }))
         }
+        if (isUsingGtavnApi()) {
+            const res = await getAPI({path: '/danh-sach/phim-moi-cap-nhat?page=1'})
+            return (res?.data?.items || []).slice(0, 10).map(normalizeGtavnListItem)
+        }
         const {result} = await getAPI({path: `${API_PREFIX}/hot`});
         return result;
     }
@@ -188,6 +308,10 @@ class MovieApi {
             const res = await getAPI({path: '/danh-sach/phim-chieu-rap?page=1', version: ''})
             const cdn = `${res?.data?.APP_DOMAIN_CDN_IMAGE || 'https://img.ophim.live'}/uploads/movies`
             return (res?.data?.items || []).map((item) => normalizeOphimListItem(item, cdn))
+        }
+        if (isUsingGtavnApi()) {
+            const res = await getAPI({path: '/danh-sach/phim-chieu-rap?page=1'})
+            return (res?.data?.items || []).map(normalizeGtavnListItem)
         }
         const {result} = await getAPI({path: `${API_PREFIX}/filter?type=1&status=released&limit=20`});
         return result?.items || []
@@ -207,24 +331,28 @@ class MovieApi {
                 } catch { return base }
             }))
         }
+        if (isUsingGtavnApi()) {
+            const res = await getAPI({path: `/danh-sach/${slug}?page=${page}`})
+            return (res?.data?.items || []).map(normalizeGtavnListItem)
+        }
         const {result} = await getAPI({path: `${API_PREFIX}/filter?limit=20&page=${page}`});
         return result?.items || []
     }
 
     casts = async (id) => {
-        if (isUsingOphimApi()) return []
+        if (isUsingOphimApi() || isUsingGtavnApi()) return []
         const {result} = await getAPI({path: `${API_PREFIX}/casts/${id}`});
         return result;
     }
 
     gallery = async (id) => {
-        if (isUsingOphimApi()) return {videos: [], images: []}
+        if (isUsingOphimApi() || isUsingGtavnApi()) return {videos: [], images: []}
         const {result} = await getAPI({path: `${API_PREFIX}/gallery/${id}`});
         return result;
     }
 
     ost = async (id) => {
-        if (isUsingOphimApi()) return []
+        if (isUsingOphimApi() || isUsingGtavnApi()) return []
         const {result} = await getAPI({path: `${API_PREFIX}/ost/${id}`});
         return result;
     }
@@ -265,6 +393,40 @@ class MovieApi {
                 page_count: mapOphimPageCount(res?.data?.params?.pagination || res?.data?.pagination),
             }
         }
+        if (isUsingGtavnApi()) {
+            const page = Number(filter?.page || 1)
+            const query = filter?.q || filter?.keyword || ''
+            const actor = filter?.actor || ''
+            const toArr = (v) => Array.isArray(v) ? v : (v ? [v] : [])
+            const countries = toArr(filter?.countries)
+            const genres = toArr(filter?.genres)
+
+            let path = `/danh-sach/phim-moi-cap-nhat?page=${page}`
+
+            if (query) {
+                path = `/tim-kiem?keyword=${encodeURIComponent(query)}&limit=24&page=${page}`
+            } else if (actor) {
+                path = `/tim-kiem?keyword=${encodeURIComponent(actor)}&limit=24&page=${page}`
+            } else if (countries.length > 0) {
+                path = `/quoc-gia/${countries[0]}?page=${page}`
+            } else if (genres.length > 0) {
+                path = `/the-loai/${genres[0]}?page=${page}`
+            } else if (filter?.status === 'completed') {
+                path = `/danh-sach/phim-bo?page=${page}`
+            } else if (filter?.type === '1') {
+                path = `/danh-sach/phim-le?page=${page}`
+            } else if (filter?.type === '2') {
+                path = `/danh-sach/phim-bo?page=${page}`
+            }
+
+            const res = await getAPI({path})
+            const items = (res?.data?.items || []).map(normalizeGtavnListItem)
+
+            return {
+                items,
+                page_count: mapGtavnPageCount(res?.data?.params?.pagination || res?.data?.pagination),
+            }
+        }
 
         const queryString = Object.keys(filter).map(key => key + '=' + filter[key]).join('&')
         const {result} = await getAPI({path: `${API_PREFIX}/filterV2?${queryString}`});
@@ -272,18 +434,30 @@ class MovieApi {
     }
 
     seasons = async (mId) => {
-        if (isUsingOphimApi()) {
+        if (isUsingOphimApi() || isUsingGtavnApi()) {
             try {
-                const res = await getAPI({path: `/phim/${mId}`, version: ''})
+                const res = isUsingGtavnApi()
+                    ? await getAPI({path: `/phim/${mId}`})
+                    : await getAPI({path: `/phim/${mId}`, version: ''})
                 const movie = res?.data?.item
                 if (!movie) return []
 
-                const episodes = movie.episodes || []
-                if (episodes.length === 0) return []
+                let episodesArr = []
+                if (Array.isArray(movie.episodes)) {
+                    episodesArr = movie.episodes
+                } else if (movie.episodes && typeof movie.episodes === 'object') {
+                    episodesArr = Object.entries(movie.episodes)
+                        .filter(([, v]) => v)
+                        .map(([key, data]) => ({
+                            server_name: key,
+                            server_data: Array.isArray(data) ? data : [],
+                        }))
+                }
+                if (episodesArr.length === 0) return []
 
                 // Group by episode_number, collect all server versions
                 const epMap = new Map()
-                episodes.forEach((server) => {
+                episodesArr.forEach((server) => {
                     const vType = serverNameToVersionType(server.server_name)
                     ;(server.server_data || []).forEach((ep) => {
                         const epNum = parseFloat(ep.name) || 1
@@ -326,24 +500,25 @@ class MovieApi {
     }
 
     episodes = async ({sId, type}) => {
+        if (isUsingGtavnApi()) return null
         const {result} = await getAPI({path: `${API_PREFIX}/season/episodes?sId=${sId}&type=${type}`});
         return result;
     }
 
     logView = async (id) => {
-        if (isUsingOphimApi()) return null
+        if (isUsingOphimApi() || isUsingGtavnApi()) return null
         const result = await postAPI({path: `${API_PREFIX}/logView/${id}`});
         return result;
     }
 
     suggestion = async (id) => {
-        if (isUsingOphimApi()) return []
+        if (isUsingOphimApi() || isUsingGtavnApi()) return []
         const {result} = await getAPI({path: `${API_PREFIX}/suggestion/${id}`});
         return result;
     }
 
     topViews = async (range = "today") => {
-        if (isUsingOphimApi()) return []
+        if (isUsingOphimApi() || isUsingGtavnApi()) return []
         const {result} = await getAPI({path: `${API_PREFIX}/topViews?range=${range}`});
         return result;
     }
@@ -354,6 +529,14 @@ class MovieApi {
             const cdn = `${res?.data?.APP_DOMAIN_CDN_IMAGE || OPHIM_CDN}/uploads/movies`
             return (res?.data?.items || []).slice(0, 10).map((item, i) => ({
                 ...normalizeOphimListItem(item, cdn),
+                current_rank: i + 1,
+                direction: 'same',
+            }))
+        }
+        if (isUsingGtavnApi()) {
+            const res = await getAPI({path: '/danh-sach/phim-bo?page=1'})
+            return (res?.data?.items || []).slice(0, 10).map((item, i) => ({
+                ...normalizeGtavnListItem(item),
                 current_rank: i + 1,
                 direction: 'same',
             }))
@@ -372,12 +555,20 @@ class MovieApi {
                 direction: 'same',
             }))
         }
+        if (isUsingGtavnApi()) {
+            const res = await getAPI({path: '/danh-sach/phim-moi-cap-nhat?page=1'})
+            return (res?.data?.items || []).slice(0, 10).map((item, i) => ({
+                ...normalizeGtavnListItem(item),
+                current_rank: i + 1,
+                direction: 'same',
+            }))
+        }
         const {result} = await getAPI({path: `${API_PREFIX}/mostFavoriteRanking`});
         return result;
     }
 
     scheduledEpisodes = async (date) => {
-        if (isUsingOphimApi()) return []
+        if (isUsingOphimApi() || isUsingGtavnApi()) return []
         const {result} = await getAPI({path: `${API_PREFIX}/scheduledEpisodes?date=${date}`});
         return result;
     }
@@ -392,6 +583,15 @@ class MovieApi {
             const cdn2 = `${hotRes?.data?.APP_DOMAIN_CDN_IMAGE || 'https://img.ophim.live'}/uploads/movies`
             const latestMovies = (latestRes?.data?.items || []).slice(0, 12).map(i => normalizeOphimListItem(i, cdn1))
             const hotMovies = (hotRes?.data?.items || []).slice(0, 12).map(i => normalizeOphimListItem(i, cdn2))
+            return {latestMovies, hotMovies, randomMovies: []}
+        }
+        if (isUsingGtavnApi()) {
+            const [latestRes, hotRes] = await Promise.all([
+                getAPI({path: '/danh-sach/phim-moi-cap-nhat?page=1'}),
+                getAPI({path: '/danh-sach/phim-moi-cap-nhat?page=2'}),
+            ])
+            const latestMovies = (latestRes?.data?.items || []).slice(0, 12).map(normalizeGtavnListItem)
+            const hotMovies = (hotRes?.data?.items || []).slice(0, 12).map(normalizeGtavnListItem)
             return {latestMovies, hotMovies, randomMovies: []}
         }
         const {result} = await getAPI({path: `${API_PREFIX}/seoData`});

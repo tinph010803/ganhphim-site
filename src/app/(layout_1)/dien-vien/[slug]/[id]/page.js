@@ -1,90 +1,89 @@
-import CastApi from "@/api/cast.api";
-import {peopleAvatar} from "@/utils/image";
-import CastButtonFavorite from "@/components/cast/ButtonFavorite";
-import MovieList from "@/components/cast/MovieList";
-import {notFound, redirect} from "next/navigation";
-import ShareButton from "@/components/sharethis/Button";
-import ShareModal from "@/components/sharethis/Modal";
-import {castUrl} from "@/utils/url";
-import {isUsingOphimApi} from "@/utils/axios";
+﻿import {redirect, notFound} from "next/navigation";
+import TmdbApi, {TMDB_IMG} from "@/api/tmdb.api";
+import TmdbMovieList from "@/components/cast/TmdbMovieList";
 
-export async function generateMetadata({params}) {
-    const {id} = await params
-    if (isUsingOphimApi()) {
-        return redirect(`/dien-vien/tmdb/${id}`)
+const genderLabel = (g) => g === 2 ? 'Nam' : g === 1 ? 'Nữ' : 'Khác'
+
+export async function generateMetadata({params, searchParams}) {
+    const {slug, id} = await params
+    if (slug === 'tmdb') {
+        const person = await TmdbApi.person(id)
+        return person ? {title: `Diễn viên ${person.name}`} : {}
     }
-    const res = await CastApi.detail(id)
-    if (res) {
-        return {
-            title: `Diễn viên ${res.info.name}`,
-            alternates: {
-                canonical: castUrl(res.info)
-            }
-        }
-    } else {
-        return notFound()
-    }
+    const qs = new URLSearchParams(await searchParams).toString()
+    return redirect(`/dien-vien/${slug}${qs ? '?'+qs : ''}`)
 }
 
-const CastPage = async ({params}) => {
-    const {id} = await params
-    if (isUsingOphimApi()) {
-        redirect(`/dien-vien/tmdb/${id}`)
-    }
-    const res = await CastApi.detail(id)
-    if (res) {
-        const {info: cast, movies} = res
+const OldPage = async ({params, searchParams}) => {
+    const {slug, id} = await params
 
+    // Render TMDB actor detail directly (avoids redirect loop since [slug]/[id] intercepts tmdb/[id])
+    if (slug === 'tmdb') {
+        const [person, credits] = await Promise.all([
+            TmdbApi.person(id),
+            TmdbApi.personCredits(id),
+        ])
+        if (!person) return notFound()
+        const photo = person.profile_path
+            ? `${TMDB_IMG}/w342${person.profile_path}`
+            : '/images/avatars/default.jpg'
         return (
-            <>
-                <div id="wrapper" className="makeup">
-                    <div className="actor-container">
-                        <div className="ac-side">
-                            <div className="as-info" data-include="as-info">
-                                <div className="actor-photo mb-3">
-                                    <div className="v-actor"><img src={peopleAvatar(cast.profile_path)}
-                                                                  alt={cast.name}/></div>
-                                </div>
-                                <h2 className="heading-md actor-name mb-3">{cast.name}</h2>
-                                <div className="button-group line-center w-100 mb-3">
-                                    <CastButtonFavorite castId={cast._id}/>
-                                    <ShareButton/>
-                                </div>
-                                <div id="toggle-detail" className="btn btn-block btn-basic primary-text mb-2 d-none">
-                                    <span>Thông tin</span>
-                                    <i className="fa-solid fa-angle-down me-2"></i>
-                                </div>
-                                <div className="detail-more">
+            <div id="wrapper" className="makeup">
+                <div className="actor-container">
+                    <div className="ac-side">
+                        <div className="as-info" data-include="as-info">
+                            <div className="actor-photo mb-3">
+                                <div className="v-actor"><img src={photo} alt={person.name}/></div>
+                            </div>
+                            <h2 className="heading-md actor-name mb-3">{person.name}</h2>
+                            <div className="detail-more">
+                                {person.also_known_as?.length > 0 && (
                                     <div className="detail-line">
                                         <div className="de-title d-block mb-2">Tên gọi khác:</div>
-                                        <div className="de-value">{cast.also_known_as || "Đang cập nhật"}</div>
+                                        <div className="de-value">{person.also_known_as.slice(0, 3).join(' / ')}</div>
                                     </div>
+                                )}
+                                {person.biography && (
                                     <div className="detail-line">
                                         <div className="de-title d-block mb-2">Giới thiệu:</div>
-                                        <div className="description">
-                                            {cast.biography || "Đang cập nhật"}
-                                        </div>
+                                        <div className="description" style={{whiteSpace: 'pre-line'}}>{person.biography}</div>
                                     </div>
-                                    <div className="detail-line d-flex">
-                                        <div className="de-title">Giới tính:</div>
-                                        <div className="de-value">{cast.gender === 2 ? "Nam" : "Nữ"}</div>
-                                    </div>
+                                )}
+                                <div className="detail-line d-flex">
+                                    <div className="de-title">Giới tính:</div>
+                                    <div className="de-value">{genderLabel(person.gender)}</div>
+                                </div>
+                                {person.birthday && (
                                     <div className="detail-line d-flex">
                                         <div className="de-title">Ngày sinh:</div>
-                                        <div className="de-value">{cast.birthday || "Đang cập nhật"}</div>
+                                        <div className="de-value">{person.birthday}</div>
                                     </div>
-                                </div>
+                                )}
+                                {person.place_of_birth && (
+                                    <div className="detail-line d-flex">
+                                        <div className="de-title">Nơi sinh:</div>
+                                        <div className="de-value">{person.place_of_birth}</div>
+                                    </div>
+                                )}
+                                {person.known_for_department && (
+                                    <div className="detail-line d-flex">
+                                        <div className="de-title">Vai trò:</div>
+                                        <div className="de-value">{person.known_for_department}</div>
+                                    </div>
+                                )}
                             </div>
                         </div>
-                        <div className="ac-main">
-                            <MovieList movies={movies} heading={`Các phim đã tham gia`}/>
-                        </div>
+                    </div>
+                    <div className="ac-main">
+                        <TmdbMovieList credits={credits}/>
                     </div>
                 </div>
-                <ShareModal/>
-            </>
+            </div>
         )
     }
+
+    const qs = new URLSearchParams(await searchParams).toString()
+    redirect(`/dien-vien/${slug}${qs ? '?'+qs : ''}`)
 }
 
-export default CastPage
+export default OldPage

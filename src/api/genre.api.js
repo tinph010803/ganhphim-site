@@ -1,6 +1,5 @@
-import {getAPI} from "@/utils/axios";
+import {getAPI, isUsingOphimApi, isUsingGtavnApi} from "@/utils/axios";
 import {unstable_cache} from "next/cache";
-import {isUsingOphimApi} from "@/utils/axios";
 
 const API_PREFIX = '/genre'
 
@@ -17,6 +16,13 @@ class GenreApi {
         slug: genre.slug,
       }
     }
+    if (isUsingGtavnApi()) {
+      const res = await getAPI({path: `/the-loai`})
+      const items = res?.data || []
+      const genre = items.find((el) => el.id === id || el.slug === id)
+      if (!genre) return null
+      return {_id: genre.id, name: genre.name, slug: genre.slug}
+    }
 
     const result = await getAPI({path: `${API_PREFIX}/detail/${id}`});
     return result;
@@ -32,20 +38,24 @@ class GenreApi {
       const res = await getAPI({path: `/the-loai`, version: ''})
       return {result: (res?.data?.items || []).map((item) => ({_id: item._id, name: item.name, slug: item.slug}))}
     }
+    if (isUsingGtavnApi()) {
+      const res = await getAPI({path: `/the-loai`})
+      return {result: (res?.data || []).map((item) => ({_id: item.id, name: item.name, slug: item.slug}))}
+    }
 
     const result = await getAPI({path: `${API_PREFIX}/list`});
     return result;
   }
 
   mostPopularRanking = async () => {
-    if (isUsingOphimApi()) {
-      const TOP_GENRES = [
-        {_id: 'hanh-dong', name: 'Hành động', slug: 'hanh-dong'},
-        {_id: 'tinh-cam',  name: 'Tình cảm',  slug: 'tinh-cam'},
-        {_id: 'kinh-di',   name: 'Kinh dị',   slug: 'kinh-di'},
-        {_id: 'co-trang',  name: 'Cổ trang',  slug: 'co-trang'},
-        {_id: 'hai-huoc',  name: 'Hài hước',  slug: 'hai-huoc'},
-      ]
+    const TOP_GENRES = [
+      {_id: 'hanh-dong', name: 'Hành động', slug: 'hanh-dong'},
+      {_id: 'tinh-cam',  name: 'Tình cảm',  slug: 'tinh-cam'},
+      {_id: 'kinh-di',   name: 'Kinh dị',   slug: 'kinh-di'},
+      {_id: 'co-trang',  name: 'Cổ trang',  slug: 'co-trang'},
+      {_id: 'hai-huoc',  name: 'Hài hước',  slug: 'hai-huoc'},
+    ]
+    if (isUsingOphimApi() || isUsingGtavnApi()) {
       return TOP_GENRES.map((g, i) => ({...g, current_rank: i + 1, direction: 'same'}))
     }
     const {result} = await getAPI({path: `${API_PREFIX}/mostPopularRanking`});
