@@ -40,12 +40,15 @@ axiosInstance.interceptors.request.use(
 
         const isServer = typeof window === "undefined";
         if (isServer) {
-            config.headers = {
-                ...(config.headers || {}),
+            const extraHeaders = {
                 "Referer": "https://ganhphim.site/",
                 "Origin": "https://ganhphim.site",
                 "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36",
             };
+            if (process.env.INTERNAL_API_SECRET) {
+                extraHeaders["X-Internal-Token"] = process.env.INTERNAL_API_SECRET;
+            }
+            config.headers = { ...(config.headers || {}), ...extraHeaders };
         }
 
         const {accessToken} = getAuthTokens() || {};
