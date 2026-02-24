@@ -1,6 +1,6 @@
 import {NextResponse} from 'next/server'
 
-const cachePaths = ['/phimhay', '/phim/', '/xem-phim/', '/c/', '/the-loai/', '/quoc-gia/', '/dien-vien/', '/dao-dien/', '/network/', '/nha-san-xuat/', '/phim-bo', '/phim-le']
+const cachePaths = ['/phimhay', '/c/', '/the-loai/', '/quoc-gia/', '/dien-vien/', '/dao-dien/', '/network/', '/nha-san-xuat/', '/phim-bo', '/phim-le']
 
 export function middleware(request) {
     // console.log(`[Middleware] ${request.method} ${request.nextUrl.pathname}`)

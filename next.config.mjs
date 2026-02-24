@@ -11,6 +11,7 @@ const nextConfig = {
     env: {
         API_PREFIX: process.env.API_PREFIX,
         API_SERVER_PREFIX: process.env.API_SERVER_PREFIX,
+        INTERNAL_API_SECRET: process.env.INTERNAL_API_SECRET,
         APP_ENV: process.env.APP_ENV,
         TURNSTILE_SITE_KEY: process.env.TURNSTILE_SITE_KEY,
         W2G_SOCKET_URL: process.env.W2G_SOCKET_URL,

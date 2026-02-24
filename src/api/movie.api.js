@@ -272,6 +272,7 @@ class MovieApi {
                 const res = await getAPI({path: `/phim/${id}`})
                 return normalizeGtavnDetail(res?.data)
             } catch (e) {
+                console.error(`[MovieApi.detail] gtavn API error for slug "${id}":`, e?.message, e?.code, e?.response?.status)
                 return null
             }
         }
