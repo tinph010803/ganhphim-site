@@ -264,3 +264,39 @@
     background-color: transparent !important;
     box-shadow: none !important;
 }
+/* Movie Showtimes Banner */
+.movie-showtimes-banner {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 14px 20px;
+    border-radius: 10px;
+    background: linear-gradient(135deg, #6c3de8 0%, #d946ef 100%);
+    color: #fff;
+    font-size: 15px;
+    margin-bottom: 20px;
+}
+
+.movie-showtimes-banner .msb-icon {
+    font-size: 20px;
+    flex-shrink: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    background: rgba(255,255,255,0.2);
+    border-radius: 50%;
+}
+
+.movie-showtimes-banner .msb-list {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 4px;
+}
+
+.movie-showtimes-banner .msb-sep {
+    opacity: 0.6;
+    margin: 0 2px;
+}

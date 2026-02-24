@@ -579,6 +579,72 @@ class MovieApi {
         return result;
     }
 
+    showtimesByDate = async (date) => {
+        // date must be YYYY-MM-DD format
+        try {
+            const res = await fetch(`https://rophimm.net/baseapi/api/v1/showtimes/by-date/${date}`)
+            if (!res.ok) return []
+            const data = await res.json()
+            return Array.isArray(data) ? data : []
+        } catch (e) {
+            return []
+        }
+    }
+
+    showtimesByMovie = async (movieId) => {
+        try {
+            const res = await fetch(`https://rophimm.net/baseapi/api/v1/showtimes/by-movie/${movieId}`)
+            if (!res.ok) return []
+            const data = await res.json()
+            return Array.isArray(data) ? data : []
+        } catch (e) {
+            return []
+        }
+    }
+
+    showtimesBySlug = async (slug) => {
+        try {
+            const today = new Date()
+            const BATCH_SIZE = 14
+            const MAX_BATCHES = 3 // tối đa 42 ngày tương lai
+
+            let movieId = null
+
+            for (let batch = 0; batch < MAX_BATCHES; batch++) {
+                const startOffset = batch * BATCH_SIZE
+                const dates = Array.from({length: BATCH_SIZE}, (_, i) => {
+                    const d = new Date(today)
+                    d.setDate(d.getDate() + startOffset + i)
+                    return d.toISOString().slice(0, 10)
+                })
+
+                const results = await Promise.all(dates.map(async (date) => {
+                    try {
+                        const res = await fetch(`https://rophimm.net/baseapi/api/v1/showtimes/by-date/${date}`)
+                        if (!res.ok) return []
+                        return await res.json()
+                    } catch { return [] }
+                }))
+
+                for (const dayResults of results) {
+                    if (!Array.isArray(dayResults)) continue
+                    const found = dayResults.find(item => item.movie?.slug === slug)
+                    if (found) {
+                        movieId = found.movie_id ?? found.movie?.id
+                        break
+                    }
+                }
+
+                if (movieId) break
+            }
+
+            if (!movieId) return []
+            return await this.showtimesByMovie(movieId)
+        } catch (e) {
+            return []
+        }
+    }
+
     seoData = async () => {
         if (isUsingOphimApi()) {
             const [latestRes, hotRes] = await Promise.all([

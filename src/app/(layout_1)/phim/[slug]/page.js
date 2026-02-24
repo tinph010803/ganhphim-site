@@ -20,6 +20,7 @@ import MovieRemindButton from "@/components/movie/remind/Button";
 import H1Tags from "@/components/layout/H1Tags";
 import AdsBannerSidebar from "@/components/ads/BannerSidebar";
 import AdsBannerCenter from "@/components/ads/BannerCenter";
+import MovieShowtimesBanner from "@/components/movie/ShowtimesBanner";
 
 const pageMetadata = async (data) => {
     return await getMetadata({page: "detail", data})
@@ -116,6 +117,7 @@ const MovieDetail = async ({params}) => {
                             <AdsBannerCenter page="movie_detail" position="center_1" style={{marginBottom: "30px",marginTop:"30px"}}/>
                             <div className="content-gap">
                                 <div className="cg-body">
+                                    <MovieShowtimesBanner slug={movie.slug}/>
                                     <MovieDetailContent movie={movie}/>
                                 </div>
                                 <MovieCommentWidget movie={movie}/>

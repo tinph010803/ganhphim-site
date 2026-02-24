@@ -9,12 +9,18 @@ const ScheduleData = () => {
   const {dateSelected} = useAppSelector(state => state.schedule)
   const [schedulesHasTime, setSchedulesHasTime] = useState([])
   const [schedulesNoTime, setSchedulesNoTime] = useState([])
+  const [loading, setLoading] = useState(false)
 
   useEffect(() => {
     const getSchedules = async () => {
-      const result = await MovieApi.scheduledEpisodes(dateSelected)
-      setSchedulesNoTime(result.filter(el => el.air_time === ""))
-      setSchedulesHasTime(result.filter(el => el.air_time))
+      setLoading(true)
+      // dateSelected is DD-MM-YYYY, convert to YYYY-MM-DD for the API
+      const [day, month, year] = dateSelected.split('-')
+      const apiDate = `${year}-${month}-${day}`
+      const result = await MovieApi.showtimesByDate(apiDate)
+      setSchedulesHasTime(result.filter(el => el.show_time))
+      setSchedulesNoTime(result.filter(el => !el.show_time))
+      setLoading(false)
     }
 
     if (dateSelected) {
@@ -22,24 +28,26 @@ const ScheduleData = () => {
     }
   }, [dateSelected])
 
+  if (loading) return (
+    <div className="v-notice">
+      <p className="mb-0">Đang tải lịch chiếu...</p>
+    </div>
+  )
+
   return (
     <div className="sche-timeline">
       {schedulesHasTime.length > 0 && <div className="st-row new">
         <div className="items">
-          {schedulesHasTime.map(item => {
-            return (
-              <MovieItemSchedule item={item} key={`s-${item._id}`}/>
-            )
-          })}
+          {schedulesHasTime.map(item => (
+            <MovieItemSchedule item={item} key={`s-${item.id}`}/>
+          ))}
         </div>
       </div>}
       {schedulesNoTime.length > 0 && <div className="st-row new">
         <div className="items">
-          {schedulesNoTime.map(item => {
-            return (
-              <MovieItemSchedule item={item} key={`s-${item._id}`}/>
-            )
-          })}
+          {schedulesNoTime.map(item => (
+            <MovieItemSchedule item={item} key={`s-${item.id}`}/>
+          ))}
         </div>
       </div>}
       {(schedulesHasTime.length === 0 && schedulesNoTime.length === 0) && <div className="v-notice">
