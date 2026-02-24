@@ -17,7 +17,8 @@ const isUsingOphimApi = () => {
 
 const isUsingGtavnApi = () => {
     const base = getBaseURL() || "";
-    return /gtavn\.network/i.test(base);
+    const apiPrefix = process.env.API_PREFIX || "";
+    return /gtavn\.network/i.test(base) || /gtavn\.network/i.test(apiPrefix);
 };
 
 let isRefreshing = false;
