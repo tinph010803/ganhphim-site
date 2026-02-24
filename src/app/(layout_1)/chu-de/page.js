@@ -20,21 +20,31 @@ const CollectionPage = async () => {
                         <h3 className="category-name me-3">Các chủ đề</h3>
                     </div>
                     <div className="row-content">
-                        <div className="topics-list topics-grid">
+                        <div className="tc-grid">
                             {topics.map((topic) => {
                                 const c = topic.color || '#1d2e79'
+                                const thumb = topic.thumbnail || topic.thumb || null
                                 return (
-                                    <Link href={collectionUrl(topic)} className="row-topic" key={`t-${topic._id}`}>
-                                        <div className="mask"
-                                             style={{background: `linear-gradient(135deg, ${c} 0%, ${c}aa 100%)`}}></div>
-                                        <div className="intro">
-                                            <div className="heading-md lim-2 mb-0">{topic.name}</div>
-                                            <div className="info">
-                                                <div className="btn btn-sm btn-outline">
-                                                    <span>Xem toàn bộ</span>
-                                                    <i className="fa-solid fa-angle-right"></i>
-                                                </div>
+                                    <Link href={collectionUrl(topic)} key={`t-${topic._id}`} className="tc-card">
+                                        {/* Colour overlay */}
+                                        <div className="tc-overlay" style={{backgroundColor: c}} />
+                                        {/* Glow circle */}
+                                        <div className="tc-glow" style={{backgroundColor: c}} />
+                                        {/* Thumbnail */}
+                                        {thumb && (
+                                            <div className="tc-thumb">
+                                                <img src={thumb} alt={topic.name} className="tc-thumb__img" />
                                             </div>
+                                        )}
+                                        {/* Text layer */}
+                                        <div className="tc-body">
+                                            <div className="tc-icon" style={{color: c}}>
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                                                    <line x1="4" y1="9" x2="20" y2="9"/><line x1="4" y1="15" x2="20" y2="15"/>
+                                                    <line x1="10" y1="3" x2="8" y2="21"/><line x1="16" y1="3" x2="14" y2="21"/>
+                                                </svg>
+                                            </div>
+                                            <h3 className="tc-title">{topic.name}</h3>
                                         </div>
                                     </Link>
                                 )
