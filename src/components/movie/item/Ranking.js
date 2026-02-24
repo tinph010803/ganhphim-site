@@ -6,10 +6,6 @@ import Link from "next/link";
 import {movieDetailUrl} from "@/utils/url";
 
 const MovieItemRanking = ({item}) => {
-  const desc = item.overview
-    ? item.overview.replace(/<[^>]*>/g, '').slice(0, 80)
-    : [item.year, item.genres?.slice(0, 2).map(g => g.name).join(' · ')].filter(Boolean).join(' · ')
-
   return (
     <div className="item">
       <div className="pos">{item.current_rank}.</div>
@@ -26,7 +22,6 @@ const MovieItemRanking = ({item}) => {
         <h4 className="name lim-1">
           <Link href={movieDetailUrl(item)} title={item.title}>{item.title}</Link>
         </h4>
-        {desc && <div className="rank-desc lim-2">{desc}</div>}
       </div>
     </div>
   )

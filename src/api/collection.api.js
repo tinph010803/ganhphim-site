@@ -33,9 +33,9 @@ const OPHIM_TOPICS = [
 
 // Virtual collections for OPhim home page (12 collections = 3 pages x 4)
 const OPHIM_HOME_COLLECTIONS = [
-  {_id: 'ophim-han-quoc',      name: 'Phim Hàn Quốc',        style: 1, color: '#f4a724', path: '/quoc-gia/han-quoc'},
-  {_id: 'ophim-au-my',         name: 'Phim Âu Mỹ',           style: 1, color: '#e84393', path: '/quoc-gia/au-my'},
-  {_id: 'ophim-trung-quoc',    name: 'Phim Trung Quốc',      style: 1, color: '#f4724a', path: '/quoc-gia/trung-quoc'},
+  {_id: 'ophim-han-quoc',      name: 'Phim Hàn Quốc mới',   style: 1, group: true, color: '#f4a724', path: '/quoc-gia/han-quoc'},
+  {_id: 'ophim-au-my',         name: 'Phim US-UK mới',       style: 1, group: true, color: '#e84393', path: '/quoc-gia/au-my'},
+  {_id: 'ophim-trung-quoc',    name: 'Phim Trung Quốc mới',  style: 1, group: true, color: '#f4724a', path: '/quoc-gia/trung-quoc'},
 ]
 
 class CollectionApi {
@@ -84,7 +84,7 @@ class CollectionApi {
             }))
             movies = [...detailed, ...movies.slice(10)]
           }
-          return {_id: col._id, name: col.name, style: col.style, color: col.color, path: col.path, type: 1, slug: col._id, movies, random_data: false}
+          return {_id: col._id, name: col.name, style: col.style, group: col.group || false, color: col.color, path: col.path, type: 1, slug: col._id, movies, random_data: false}
         } catch {
           return {_id: col._id, name: col.name, style: col.style, color: col.color, path: col.path, type: 1, slug: col._id, movies: [], random_data: false}
         }

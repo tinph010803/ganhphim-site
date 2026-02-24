@@ -14,8 +14,8 @@ export const fetchCollections = createAsyncThunk(
     const {result} = await CollectionApi.list({page, limit: BATCH_SIZE});
 
     return {
-      collections: result.collections.filter((el) => el.style !== 6), // Các collections thường
-      groupCollections: result.collections.filter((el) => el.style === 6), // `groupCollections`
+      collections: result.collections.filter((el) => el.style !== 6 && !el.group), // Các collections thường
+      groupCollections: result.collections.filter((el) => el.style === 6 || el.group), // `groupCollections`
       page,
       totalPages: result.totalPages,
     };

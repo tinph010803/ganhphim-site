@@ -51,7 +51,7 @@ const CountryPage = async ({params}) => {
                         <div className="row-header">
                             <h3 className="category-name">Phim {country.name}</h3>
                         </div>
-                        <MovieFilter initFilter={{countries: country.code, exclude_status: ["Upcoming"]}}/>
+                        <MovieFilter initFilter={{countries: country.code, exclude_status: ["Upcoming"], sort: "year"}}/>
                     </div>
                     <BannerCenter page="movie_list" position="center_2"/>
                 </div>

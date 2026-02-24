@@ -68,6 +68,7 @@ const MovieFilter = ({initFilter = null, initShowFilter = false, allowFilter = t
     const [filter, setFilter] = useState(null)
 
     const sortList = [
+        {value: "year", title: "Năm phát hành"},
         {value: "release_date", title: "Mới nhất"},
         {value: "updated_at", title: "Mới cập nhật"},
         {value: "imdb_rating", title: "Điểm IMDb"},

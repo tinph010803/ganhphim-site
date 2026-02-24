@@ -1210,9 +1210,9 @@ body.focus-mod .player-ratio .control-items .item{ visibility: hidden;}
 .it-col .chart-list .item .pos{width: 16px; font-size: 1.2em; font-weight: 600; opacity: .3;}
 .it-col .chart-list .item .dev{width: 16px; text-align: center;}
 .it-col .chart-list .item .name-wrap{ flex-grow: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px;}
-.it-col .chart-list .item .name{ margin: 0 !important; font-size: 1em; font-weight: 400; color: #fff;}
-.it-col .chart-list .item .rank-desc{ font-size: 11px; opacity: .5; line-height: 1.4; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;}
-.it-col .chart-list .item .v-thumbnail{ width: 25px; padding-bottom: 36px; border-radius: .1rem;}
+.it-col .chart-list .item .name{ margin: 0 !important; font-size: 1em; font-weight: 400; color: #fff; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;}
+.it-col .chart-list .item .rank-desc{ font-size: 11px; opacity: .5; line-height: 1.4; overflow: hidden; text-overflow: ellipsis; display: -webkit-box; -webkit-line-clamp: 1; -webkit-box-orient: vertical; white-space: normal;}
+.it-col .chart-list .item .v-thumbnail{ width: 40px; height: 56px; padding-bottom: 0; border-radius: .2rem; flex-shrink: 0;}
 .it-col .chart-list .item .user-avatar{ width: 32px; height: 32px;}
 .it-col .chart-list .item .topic-color{ padding: 0 .8rem; height: 28px; font-size: 13px; display: flex; align-items: center; color: #fff; border-radius: 30px;}
 .it-col .chart-list .item-more a{ color: #fff5;}
@@ -1241,7 +1241,8 @@ body.focus-mod .player-ratio .control-items .item{ visibility: hidden;}
 .it-col.this-03 .chart-list .item:nth-child(10n + 8) .topic-color{ background-color: #c9512c !important}
 .it-col.this-03 .chart-list .item:nth-child(10n + 9) .topic-color{ background-color: #616994 !important}
 .it-col.this-03 .chart-list .item:nth-child(10n + 10) .topic-color{ background-color: #ad4c68 !important}
-.it-col.this-05{ max-width: 550px;}
+.it-col.this-05{ flex: 1.2; min-width: 0; max-width: none;}
+.it-col.this-05 .no-comments{ opacity: .4; font-size: .9em; padding: .5rem 0;}
 
 .d-modal .modal-content{ background-color: #242838 !important;}
 .d-modal .comm-title{ font-size: 14px;}

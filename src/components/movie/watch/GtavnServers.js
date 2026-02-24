@@ -234,7 +234,7 @@ const GtavnServers = ({movie, page = "watch"}) => {
     return (
         <div className="cg-body-box is-eps">
             {subtitleServers.length > 0 && dubbedServers.length > 0 && (
-                <div style={{display: 'flex', borderBottom: '1px solid rgba(255,255,255,0.08)'}}>
+                <div style={{display: 'flex', borderBottom: '1px solid rgba(255,255,255,0.08)', marginBottom: '10px'}}>
                     <button style={tabBtnStyle(effectiveGroup === 'subtitle')} onClick={() => {
                         setActiveGroup('subtitle')
                         if (getServerGroup(activeServer?.name) !== 'subtitle' && subtitleServers[0])
@@ -252,7 +252,7 @@ const GtavnServers = ({movie, page = "watch"}) => {
                 </div>
             )}
             <div className="box-header" style={{flexWrap: 'wrap', gap: '6px'}}>
-                <div className="nav nav-pills v-tabs v-tabs-min tab-trans mb-0" role="tablist" style={{flexWrap: 'wrap', flex: 1, minWidth: 0}}>
+                <div className="nav nav-pills v-tabs v-tabs-min tab-trans mb-0" role="tablist" style={{flexWrap: 'wrap', flex: 1, minWidth: 0, rowGap: '6px'}}>
                     {renderServerButtons(currentGroupServers)}
                 </div>
                 <div className="v-toggle v-toggle-min line-center flex-shrink-0" onClick={() => setShowFull(!showFull)}>

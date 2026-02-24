@@ -23,6 +23,7 @@ import HomeCinema from "@/components/home/Cinema";
 import HomeAnime from "@/components/home/Anime";
 import HomeHongKong from "@/components/home/HongKong";
 import HomeHorror from "@/components/home/Horror";
+import HomeCountryRows from "@/components/home/CountryRows";
 
 const DataBlockList = () => {
     const dispatch = useAppDispatch()
@@ -89,15 +90,9 @@ const DataBlockList = () => {
 
             <HomeContinueWatching/>
 
-            {groupCollections.length > 0 && (
-                <div className="cards-row cards-slide wide effect-fade-in">
-                    <div className="topics-list single mt-0">
-                        {groupCollections.map((item) => (
-                            <CollectionStyle6 key={`col-${item._id}`} collection={item}/>
-                        ))}
-                    </div>
-                </div>
-            )}
+            <HomeCountryRows/>
+
+            <HomeCommunity/>
 
             <AdsBannerCenter page="home" position="center_2"/>
 
@@ -112,8 +107,6 @@ const DataBlockList = () => {
                     </div>
                 </div>
             )}
-
-            <HomeCommunity/>
 
             <HomeHotSeries/>
 

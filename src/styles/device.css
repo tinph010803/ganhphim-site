@@ -165,7 +165,8 @@
     .topics-grid .row-topic .intro .heading-md{ font-size: 1.4em;}
     .denied-box{ padding: 1.5rem 15%;}
     #totop{ display: none !important;}
-    .top-discuss, .it-col.this-05, .it-col.this-04{ display: none;}
+    .top-discuss, .it-col.this-04{ display: none;}
+    .it-col.this-05{ display: flex; flex-direction: column;}
     .it-col.this-01, .it-col.this-02{ width: auto; flex-shrink: unset; flex: 1;}
     .it-col.this-03{ display: block; width: 280px;}
     .zbox-continue{ display: none;}
@@ -344,6 +345,7 @@
     .v-tabs.nav-tabs .nav-link + .nav-link{ margin-left: 2rem;}
     .cg-body-box.is-eps .box-header{ position: relative;}
     .cg-body-box.is-eps .box-header .v-toggle{ position: absolute; right: 0;}
+    .cg-body-box.is-eps .box-header .nav.v-tabs{ padding-right: 95px;}
     .de-actors{ grid-template-columns: repeat(4,1fr);}
     .gallery-row.is-video{ grid-template-columns: repeat(3,1fr);}
     .gallery-row.is-photo{ grid-template-columns: repeat(5,1fr);}
@@ -528,9 +530,11 @@
     .sspp-area.m-hide{ display: none;}
     .card-mobile{ display: block !important;}
     .sspp-area.is-top-watch{ margin: -2rem 0 2rem !important; padding: 0 !important}
-    .comm-wrap{ width: 600px;}
-    #community{ width: 100%; overflow: auto; scrollbar-width: none; -ms-overflow-style: none;}
-    #community::-webkit-scrollbar{display: none;}
+    .comm-wrap{ width: auto !important;}
+    #community{ display: none !important;}
+    .irt-table{ flex-wrap: nowrap; min-width: 600px;}
+    .it-col.this-01, .it-col.this-02{ min-width: 0; flex: 1;}
+    .it-col.this-05{ display: flex; flex-direction: column; width: 100%; border-left: 1px solid #fff1; border-top: none; max-width: none; padding-top: 1.5rem;}
     .it-col .chart-list .item .dev{ display: none;}
     .app-box-fix{ left: 0; right: 0; bottom: 0;}
     .app-box-fix .content{ border-radius: 1rem 1rem 0 0;}
@@ -540,6 +544,8 @@
     .app-box-fix .content-rb .rb-header .rb-logo img{ width: 36px;}
 }
 @media screen and (max-width: 479px){
+    .it-col.this-01, .it-col.this-02{ min-width: 0 !important; flex: 1 !important;}
+    .irt-table .it-col + .it-col{ border-left: 1px solid #fff1; border-top: none;}
     .v-thumbnail .pin-trans .line-center span{ display: none !important;}
     .v-thumbnail .pin-trans .line-center:hover{ padding: 0 .3rem !important;}
     .top-slide-wrap .top-slide-main{ height: 300px;}

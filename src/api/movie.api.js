@@ -429,8 +429,13 @@ class MovieApi {
             }
         }
 
-        const queryString = Object.keys(filter).map(key => key + '=' + filter[key]).join('&')
+        const sortByYear = filter.sort === 'year'
+        const apiFilter = sortByYear ? {...filter, sort: 'release_date'} : filter
+        const queryString = Object.keys(apiFilter).map(key => key + '=' + apiFilter[key]).join('&')
         const {result} = await getAPI({path: `${API_PREFIX}/filterV2?${queryString}`});
+        if (sortByYear && result?.items) {
+            result.items = [...result.items].sort((a, b) => (b.year || 0) - (a.year || 0))
+        }
         return result;
     }
 

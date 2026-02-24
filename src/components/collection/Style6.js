@@ -12,6 +12,7 @@ import {collectionUrl} from "@/utils/url";
 
 const CollectionStyle6 = ({collection}) => {
   const [movies, setMovies] = useState([])
+  const href = collection.url || collectionUrl(collection)
 
   useEffect(() => {
     setMovies(collection.random_data ? shuffle(collection.movies) : collection.movies)
@@ -23,7 +24,7 @@ const CollectionStyle6 = ({collection}) => {
         <div className="intro">
           <div className="heading-md text-gradient mb-0" style={{background:`linear-gradient(235deg, rgb(255, 255, 255) 30%, ${collection.color} 130%)`}}>{collection.name}</div>
           <div className="info">
-            <Link href={collectionUrl(collection)} className="line-center">
+            <Link href={href} className="line-center">
               <span>Xem toàn bộ</span>
               <i className="fa-solid fa-angle-right"></i>
             </Link>

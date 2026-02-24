@@ -26,6 +26,9 @@ const initialState = {
     cinemaMovies: [],
     animeMovies: [],
     hongKongMovies: [],
+    koreanMovies: [],
+    chineseMovies: [],
+    usUkMovies: [],
     horrorMovies: [],
     showReportModal: false,
     curGtavnServer: 'server_1',
@@ -76,6 +79,30 @@ export const fetchHongKongMovies = createAsyncThunk(
     async (_, thunkAPI) => {
         const result = await MovieApi.filter({countries: ['hong-kong'], page: 1})
         return (result?.items || []).slice(0, 20)
+    },
+)
+
+export const fetchKoreanMovies = createAsyncThunk(
+    'movie/fetchKoreanMovies',
+    async (_, thunkAPI) => {
+        const result = await MovieApi.filter({countries: ['han-quoc'], page: 1, sort: 'release_date'})
+        return (result?.items || []).slice(0, 20).sort((a, b) => (b.year || 0) - (a.year || 0))
+    },
+)
+
+export const fetchChineseMovies = createAsyncThunk(
+    'movie/fetchChineseMovies',
+    async (_, thunkAPI) => {
+        const result = await MovieApi.filter({countries: ['trung-quoc'], page: 1, sort: 'release_date'})
+        return (result?.items || []).slice(0, 20).sort((a, b) => (b.year || 0) - (a.year || 0))
+    },
+)
+
+export const fetchUsUkMovies = createAsyncThunk(
+    'movie/fetchUsUkMovies',
+    async (_, thunkAPI) => {
+        const result = await MovieApi.filter({countries: ['au-my'], page: 1, sort: 'release_date'})
+        return (result?.items || []).slice(0, 20).sort((a, b) => (b.year || 0) - (a.year || 0))
     },
 )
 
@@ -253,6 +280,15 @@ export const movieSlice = createSlice({
             if (action.payload) {
                 state.hongKongMovies = action.payload
             }
+        })
+        builder.addCase(fetchKoreanMovies.fulfilled, (state, action) => {
+            if (action.payload) state.koreanMovies = action.payload
+        })
+        builder.addCase(fetchChineseMovies.fulfilled, (state, action) => {
+            if (action.payload) state.chineseMovies = action.payload
+        })
+        builder.addCase(fetchUsUkMovies.fulfilled, (state, action) => {
+            if (action.payload) state.usUkMovies = action.payload
         })
         builder.addCase(fetchHorrorMovies.fulfilled, (state, action) => {
             if (action.payload) {
