@@ -166,7 +166,8 @@ const GtavnServers = ({movie, page = "watch"}) => {
             setActiveEpName(saved.epName)
             setCurrentChunk(Math.floor(saved.globalIdx / CHUNK_SIZE))
         } else {
-            dispatch(setCurEpisode(null))
+            // Chưa từng chọn tập ở server này → không đụng curEpisode,
+            // player tiếp tục chạy tập hiện tại cho đến khi user bấm chọn tập mới.
             setActiveEpName('')
             setCurrentChunk(0)
         }

@@ -36,6 +36,7 @@ const MoviePlayer = ({movie}) => {
         curSeason,
         curEpisode,
         curVersion,
+        curVersionPlayer,
         cwInfo,
         cwInfoLoading,
         clickedEpisode,
@@ -197,10 +198,10 @@ const MoviePlayer = ({movie}) => {
     useEffect(() => {
         if (!(isUsingOphimApi() || isUsingGtavnApi()) || isFirstLoad) return;
         if (!curEpisode) return;
-        const version = curEpisode.versions?.find(v => v.type == curVersion) || curEpisode.versions?.[0]
+        const version = curEpisode.versions?.find(v => v.type == curVersionPlayer) || curEpisode.versions?.[0]
         const url = version?.link || ''
         if (url) setPlayerUrl(url)
-    }, [curEpisode, curVersion]);
+    }, [curEpisode, curVersionPlayer]);
 
     const prevRef = useRef({version: null, episode: null, season: null});
 
@@ -304,7 +305,7 @@ const MoviePlayer = ({movie}) => {
                 <div className="notice-dismiss" onClick={() => setShowNotice(false)}>Ẩn thông báo</div>
             </div>}
             {(() => {
-                const m3u8 = (curEpisode?.versions?.find(v => v.type == curVersion) || curEpisode?.versions?.[0])?.m3u8
+                const m3u8 = (curEpisode?.versions?.find(v => v.type == curVersionPlayer) || curEpisode?.versions?.[0])?.m3u8
                 if (m3u8 && !reduceLag) {
                     return (
                         <CustomPlayer
