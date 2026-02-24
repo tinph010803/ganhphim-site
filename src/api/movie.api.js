@@ -279,7 +279,7 @@ class MovieApi {
 
         const {result} = await getAPI({path: `${API_PREFIX}/detail/${id}`});
         return result;
-    }, [], {revalidate: 10})
+    }, ['movie-detail-v2'], {revalidate: 10})
 
     hot = async () => {
         if (isUsingOphimApi()) {
