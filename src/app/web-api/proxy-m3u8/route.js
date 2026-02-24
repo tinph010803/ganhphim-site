@@ -19,6 +19,14 @@ export async function GET(request) {
         return new NextResponse('Invalid url', {status: 400})
     }
 
+    // Nếu URL rõ ràng không phải .m3u8 (ví dụ .ts, .aac, .mp4...), redirect thẳng về CDN
+    // để browser dùng IP thật → tránh Vercel datacenter IP bị CDN block
+    const looksLikeM3u8 = /\.m3u8(\?.*)?$/i.test(parsed.pathname) ||
+        !parsed.pathname.includes('.')
+    if (!looksLikeM3u8) {
+        return NextResponse.redirect(url, {status: 302})
+    }
+
     try {
         const upstream = await fetch(url, {
             headers: {
@@ -135,7 +143,13 @@ export async function GET(request) {
                 } else {
                     absUrl = baseUrl + trimmed
                 }
-                return `/web-api/proxy-m3u8?url=${encodeURIComponent(absUrl)}`
+                // Chỉ proxy các sub-playlist .m3u8 (để strip ads trong nested playlist).
+                // Các .ts segment để browser tự fetch thẳng từ CDN bằng IP của mình,
+                // tránh bị CDN block do IP datacenter của Vercel.
+                if (/\.m3u8(\?.*)?$/i.test(absUrl)) {
+                    return `/web-api/proxy-m3u8?url=${encodeURIComponent(absUrl)}`
+                }
+                return absUrl
             })
 
             return new NextResponse(rewritten, {
@@ -148,15 +162,9 @@ export async function GET(request) {
             })
         }
 
-        // .ts segments — stream binary directly (no buffering)
-        return new NextResponse(upstream.body, {
-            status: upstream.status,
-            headers: {
-                'Content-Type': contentType,
-                'Access-Control-Allow-Origin': '*',
-                'Cache-Control': 'public, max-age=86400',
-            },
-        })
+        // .ts segments — redirect trực tiếp về CDN để tránh Vercel proxy binary
+        // (browser dùng IP thật, CDN không block; tránh size limit của edge function)
+        return NextResponse.redirect(url, {status: 302})
     } catch (e) {
         return new NextResponse('Proxy error: ' + e.message, {status: 500})
     }
