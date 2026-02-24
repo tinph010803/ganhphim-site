@@ -14,8 +14,9 @@ const isLocalStorageAvailable = () => {
 }
 
 const setAuthTokens = (tokens) => {
-    const accessToken = tokens.access.token;
-    const refreshToken = tokens.refresh.token;
+    // Support cả format mới { accessToken, refreshToken } và format cũ { access: { token }, refresh: { token } }
+    const accessToken = tokens.accessToken || tokens.access?.token;
+    const refreshToken = tokens.refreshToken || tokens.refresh?.token;
 
     if (isLocalStorageAvailable()) {
         // Ưu tiên lưu vào localStorage

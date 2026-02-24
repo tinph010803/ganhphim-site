@@ -26,22 +26,27 @@ const ModalLogin = () => {
 
   const onLoginSubmit = async (data) => {
     if (!loginLoading) {
-      data.token = recaptchaLoginRef.current.getResponse()
-      if (data.token.length === 0) {
+      const captchaEnabled = !!process.env.TURNSTILE_SITE_KEY
+      const captchaToken = recaptchaLoginRef.current?.getResponse() || ''
+      if (captchaEnabled && captchaToken.length === 0) {
         showToast({message: `Hãy xác nhận bạn không phải là người máy`, type: "error"})
       } else {
+        if (captchaToken) data.captchaToken = captchaToken
         setLoginLoading(true)
 
-        const {status, result, msg} = await AuthApi.login(data)
+        const res = await AuthApi.login(data)
         setLoginLoading(false)
 
-        if (!status) {
+        const user = res?.data?.user || res?.result?.user
+        const msg = res?.message || res?.msg
+
+        if (!res?.status) {
           showToast({message: msg, type: "error"})
-          recaptchaLoginRef.current.reset()
+          recaptchaLoginRef.current?.reset()
         } else {
           showToast({message: msg, type: 'success'})
           dispatch(toggleShowModalLogin())
-          dispatch(setLoggedUser(result.user))
+          dispatch(setLoggedUser(user))
         }
       }
     }
@@ -68,8 +73,8 @@ const ModalLogin = () => {
         </p>
           <form className="v-form" onSubmit={handleSubmitLogin(onLoginSubmit)}>
               <div className="form-group mb-2">
-                  <input type="email" className="form-control v-form-control"
-                         placeholder="Email" {...formLogin('email', {required: true})}/>
+                  <input type="text" className="form-control v-form-control"
+                         placeholder="Tên đăng nhập" {...formLogin('username', {required: true})}/>
               </div>
               <div className={`form-group mb-4 user-password ${showPassword ? 'show-text' : ''}`}>
                   <input type={showPassword ? 'text' : 'password'} className="form-control v-form-control"
@@ -78,7 +83,7 @@ const ModalLogin = () => {
                   {btnShowPassword && <div className="toggle-password" onClick={() => setShowPassword(!showPassword)}><i
                       className="fa-solid fa-eye"></i></div>}
               </div>
-              <Turnstile
+              {process.env.TURNSTILE_SITE_KEY && <Turnstile
                   ref={recaptchaLoginRef}
                   siteKey={process.env.TURNSTILE_SITE_KEY}
                   onExpire={() => recaptchaLoginRef.current?.reset()}
@@ -86,7 +91,7 @@ const ModalLogin = () => {
                   options={{
                       language: "vi"
                   }}
-              />
+              />}
               <div className="form-group action-btn mt-4 mb-4 d-grid">
                   <button className="btn d-block btn-primary">
                       Đăng nhập

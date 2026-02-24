@@ -66,9 +66,10 @@ export const userSlice = createSlice({
     extraReducers(builder) {
         builder.addCase(fetchLatestNotifications.fulfilled, (state, action) => {
             if (action.payload) {
-                state.latestMovieNotifications = action.payload.movieNotifications
-                state.latestCommunityNotifications = action.payload.communityNotifications
-                const {movie, community} = action.payload.totalNew
+                state.latestMovieNotifications = action.payload.movieNotifications || []
+                state.latestCommunityNotifications = action.payload.communityNotifications || []
+                const movie = action.payload.totalNew?.movie ?? 0
+                const community = action.payload.totalNew?.community ?? 0
                 state.totalNewMovie = movie
                 state.totalNewCommunity = community
                 state.totalNew = movie + community

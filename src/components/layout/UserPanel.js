@@ -14,13 +14,12 @@ import UserHeaderMenu from "@/components/user/HeaderMenu";
 import {setAccessToken} from "@/redux/features/authSlice";
 import {tokenEmitter} from "@/utils/tokenEvents";
 import {socketActions} from "@/redux/middlewares/socketMiddleware";
-import {useLoginUrl} from "@/hooks/useLoginUrl";
+import {toggleShowModalLogin} from "@/redux/features/authSlice";
 
 const UserPanel = () => {
     const pathname = usePathname()
     const dispatch = useAppDispatch()
     const {loggedUser, isLoadingUserInfo} = useAppSelector(state => state.auth)
-    const loginUrl = useLoginUrl()
 
     const getFavoriteIds = async () => {
         try {
@@ -66,7 +65,7 @@ const UserPanel = () => {
     if (loggedUser === null && !isLoadingUserInfo) {
         return (
             <div id="main_user">
-                <a className="button-user button-login" href={loginUrl}>
+                <a className="button-user button-login" style={{cursor:'pointer'}} onClick={() => dispatch(toggleShowModalLogin())}>
                     <div className="line-center">
                         <i className="fa-solid fa-user ms-1"></i>
                         <span>Thành viên</span>

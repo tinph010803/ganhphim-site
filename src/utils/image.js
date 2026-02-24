@@ -90,7 +90,15 @@ const userAvatar = (user) => {
             const pathSplit = user.avatar_path.split('/')
             return `${AVATAR_DOMAIN}/vuresource/200-0/${pathSplit.pop()}`
         }
-        return `/images${user.avatar.path}`
+        // API mới: avatar là string URL trực tiếp
+        if (typeof user.avatar === 'string' && user.avatar) {
+            return user.avatar
+        }
+        // API cũ: avatar là object có .path
+        if (user.avatar?.path) {
+            return `/images${user.avatar.path}`
+        }
+        return `/images/avatars/default.webp`
     }
 }
 

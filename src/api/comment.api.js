@@ -42,7 +42,13 @@ class CommentApi {
     if (isUsingOphimApi()) return {status: false, msg: 'Không khả dụng'}
     if (isUsingGtavnApi()) {
       const res = await postAPI({path: GTAVN_PREFIX, data})
-      return res
+      const rawComment = res?.data?.comment || (res?.data?._id ? res.data : null)
+      const comment = rawComment ? normalizeGtavnComment(rawComment) : null
+      return {
+        status: res?.status ?? false,
+        msg: res?.message || (res?.status ? 'Đã gửi bình luận' : 'Gửi bình luận thất bại'),
+        result: comment,
+      }
     }
     const res = await postAPI({path: `${API_PREFIX}/add`, data})
     return res
@@ -99,9 +105,17 @@ class CommentApi {
     if (isUsingGtavnApi()) {
       const {movie_id, movieId, page = 1, limit = 20, sort = 'newest'} = filter || {}
       const mId = movie_id || movieId
-      if (!mId) return {data: {items: [], pagination: {currentPage: 1, totalPages: 0, totalItems: 0, itemsPerPage: limit, hasNextPage: false, hasPrevPage: false}}}
+      if (!mId) return {result: {items: [], item_count: 0, has_more: false}}
       const res = await getAPI({path: `${GTAVN_PREFIX}/movie/${mId}?page=${page}&limit=${limit}&sort=${sort}`})
-      return res
+      const items = (res?.data?.items || []).map(normalizeGtavnComment).filter(Boolean)
+      const pagination = res?.data?.pagination || {}
+      return {
+        result: {
+          items,
+          item_count: pagination.totalItems ?? 0,
+          has_more: pagination.hasNextPage ?? false,
+        }
+      }
     }
     const queryString = Object.keys(filter).map(key => key + '=' + filter[key]).join('&')
     const res = await getAPI({path: `${API_PREFIX}/list?${queryString}`})
@@ -109,10 +123,11 @@ class CommentApi {
   }
 
   replyList = async (parent_id, {page = 1, limit = 20} = {}) => {
-    if (isUsingOphimApi()) return {result: {items: []}}
+    if (isUsingOphimApi()) return {result: []}
     if (isUsingGtavnApi()) {
       const res = await getAPI({path: `${GTAVN_PREFIX}/${parent_id}/replies?page=${page}&limit=${limit}`})
-      return res
+      const items = (res?.data?.items || []).map(normalizeGtavnComment).filter(Boolean)
+      return {result: items}
     }
     const res = await getAPI({path: `${API_PREFIX}/replyList?parent_id=${parent_id}`})
     return res

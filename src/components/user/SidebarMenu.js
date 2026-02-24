@@ -5,7 +5,7 @@ import {setLoggedUser} from "@/redux/features/authSlice";
 import {showToast} from "@/utils/helpers";
 import {useAppDispatch} from "@/hooks/redux";
 import {
-    idpProfileUrl,
+    userProfileUrl,
     userContinueWatchingUrl,
     userFavoriteUrl,
     userNotificationUrl,
@@ -59,7 +59,7 @@ const UserSidebarMenu = ({loggedUser, page}) => {
                             <span>Thông báo</span>
                         </div>
                     </Link>
-                    <Link href={idpProfileUrl} className="item" target="_blank">
+                    <Link href={userProfileUrl()} className={`item ${page === 'profile' ? 'active' : ''}`}>
                         <div className="line-center">
                             <i className="fa-solid fa-user"></i>
                             <span>Tài khoản</span>

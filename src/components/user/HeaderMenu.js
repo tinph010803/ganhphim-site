@@ -5,7 +5,7 @@ import {setLoggedUser} from "@/redux/features/authSlice";
 import {compactNumber, showToast} from "@/utils/helpers";
 import {useAppDispatch, useAppSelector} from "@/hooks/redux";
 import {
-    idpDepositUrl, idpProfileUrl, idpUpgradeUrl,
+    idpDepositUrl, idpUpgradeUrl, userProfileUrl,
     userContinueWatchingUrl,
     userFavoriteUrl,
     userPlaylistUrl,
@@ -110,7 +110,7 @@ const UserHeaderMenu = ({}) => {
                             <span>Xem tiếp</span>
                         </div>
                     </Link>
-                    <Link href={idpProfileUrl} className="dropdown-item" target="_blank">
+                    <Link href={userProfileUrl()} className="dropdown-item">
                         <div className="line-center">
                             <i className="fa-solid fa-user"></i>
                             <span>Tài khoản</span>

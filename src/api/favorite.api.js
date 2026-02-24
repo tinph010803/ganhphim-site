@@ -6,12 +6,22 @@ const API_PREFIX = '/favorite'
 class FavoriteApi {
   add = async (data) => {
     if (isUsingOphimApi()) return {status: false}
+    if (isUsingGtavnApi()) {
+      const movieId = data.movieId || data.movie_id
+      const res = await postAPI({path: `${API_PREFIX}/toggle`, data: {movieId}})
+      return {status: res?.status ?? false, msg: res?.message || ''}
+    }
     const res = await postAPI({path: `${API_PREFIX}/add`, data})
     return res
   }
 
   remove = async (data) => {
     if (isUsingOphimApi()) return {status: false}
+    if (isUsingGtavnApi()) {
+      const movieId = data.movieId || data.movie_id
+      const res = await postAPI({path: `${API_PREFIX}/toggle`, data: {movieId}})
+      return {status: res?.status ?? false, msg: res?.message || ''}
+    }
     const res = await postAPI({path: `${API_PREFIX}/remove`, data})
     return res
   }
@@ -46,19 +56,16 @@ class FavoriteApi {
     if (isUsingOphimApi()) return {result: {items: [], page_count: 0}}
     if (isUsingGtavnApi()) {
       const res = await getAPI({path: `${API_PREFIX}/list?limit=${limit}&page=${page}`})
-      if (res?.status && res?.data?.items) {
-        return {
-          ...res,
-          data: {
-            ...res.data,
-            items: (res.data.items || []).map((fav) => ({
-              ...fav,
-              movie: fav.movie ? normalizeGtavnListItem(fav.movie) : null,
-            })),
-          },
+      const rawItems = res?.data?.items || []
+      const movieItems = rawItems
+        .map((fav) => (fav.movie ? normalizeGtavnListItem(fav.movie) : null))
+        .filter(Boolean)
+      return {
+        result: {
+          items: movieItems,
+          page_count: res?.data?.pagination?.totalPages ?? 0,
         }
       }
-      return res
     }
     const res = await getAPI({path: `${API_PREFIX}/list?limit=${limit}&page=${page}`})
     return res

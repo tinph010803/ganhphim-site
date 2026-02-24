@@ -1,6 +1,5 @@
 import {createAsyncThunk, createSlice} from '@reduxjs/toolkit'
-import UserApi from "@/api/user.api";
-import {isVipFromCookies} from "@/utils/helpers";
+import AuthApi from "@/api/auth.api";
 
 const initialState = {
     isLogged: false,
@@ -17,8 +16,8 @@ export const fetchUserInfo = createAsyncThunk(
     'user/fetchUserInfo',
     async (thunkAPI) => {
         try {
-            const {result} = await UserApi.info()
-            return result
+            const res = await AuthApi.getProfile()
+            return res?.data || res?.result || false
         } catch (e) {
         }
 

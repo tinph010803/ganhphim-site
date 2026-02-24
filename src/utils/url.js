@@ -45,7 +45,7 @@ const userNotificationUrl = () => {
     return `/user/thong-bao`
 }
 const userProfileUrl = () => {
-    return `/user/profile`
+    return `/user/thong-tin`
 }
 const userContinueWatchingUrl = () => {
     return `/user/xem-tiep`
