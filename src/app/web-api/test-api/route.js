@@ -5,7 +5,12 @@ export async function GET() {
     let result = { baseUrl, status: false, data: null, error: null }
 
     try {
-        const { data } = await axios.get(`${baseUrl}/v1/phim/nu-hoang-nuoc-mat`, { timeout: 8000 })
+        const { data } = await axios.get(`${baseUrl}/v1/phim/nu-hoang-nuoc-mat`, {
+            timeout: 8000,
+            headers: {
+                "X-Internal-Token": process.env.INTERNAL_API_SECRET || "",
+            }
+        })
         result.status = true
         result.data = data
     } catch (error) {
