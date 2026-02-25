@@ -1,5 +1,6 @@
 import {getMetadata} from "@/utils/metadata";
 import SetNewPassword from "@/components/auth/SetNewPassword";
+import {Suspense} from "react";
 
 const pageMetadata = async () => {
   return await getMetadata({page: "setNewPassword"})
@@ -23,7 +24,9 @@ const SetNewPasswordPage = async () => {
   return (
     <div id="wrapper">
       <h1 style={{display: "none"}}>{h1}</h1>
-      <SetNewPassword/>
+      <Suspense>
+        <SetNewPassword/>
+      </Suspense>
     </div>
   )
 }

@@ -1,5 +1,6 @@
 import {getMetadata} from "@/utils/metadata";
 import LoginTV from "@/components/auth/LoginTV";
+import {Suspense} from "react";
 
 const pageMetadata = async () => {
   return await getMetadata({page: "loginTV"})
@@ -23,7 +24,9 @@ const LoginTvPage = async () => {
   return (
     <div id="wrapper">
       <h1 style={{display: "none"}}>{h1}</h1>
-      <LoginTV/>
+      <Suspense>
+        <LoginTV/>
+      </Suspense>
     </div>
   )
 }
