@@ -34,12 +34,13 @@ export async function generateMetadata({params, searchParams}) {
             data
         })
 
-        const hdrs = await headers()
-        const host = hdrs.get("host") || "";
-        const proto = hdrs.get("x-forwarded-proto") || "https";
         const path = movieWatchUrl(movie);
         const qs = new URLSearchParams(_searchParams).toString();
-        const currentUrl = `${proto}://${host}${path}${qs ? "?" + qs : ""}`;
+        const _base = process.env.NEXT_PUBLIC_SITE_URL || await (async () => {
+            const hdrs = await headers()
+            return `${hdrs.get('x-forwarded-proto') || 'https'}://${hdrs.get('host') || 'localhost'}`
+        })();
+        const currentUrl = `${_base}${path}${qs ? "?" + qs : ""}`;
 
         return {
             title,

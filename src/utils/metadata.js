@@ -55,8 +55,21 @@ const replaceData = ({str, data}) => {
 }
 
 const getMetadata = async ({page = "default", data = {}}) => {
-    const headersList = await headers()
-    const host = headersList.get('host')
+    // Use NEXT_PUBLIC_SITE_URL when set to avoid calling headers().
+    // headers() forces dynamic rendering on every request, preventing Next.js
+    // from ISR-caching the rendered HTML. With the env var set, /phim/[slug]
+    // can be fully ISR-cached (revalidate: 300) — served in ~1ms after first hit.
+    let host, proto
+    const siteUrl = process.env.NEXT_PUBLIC_SITE_URL
+    if (siteUrl) {
+        const u = new URL(siteUrl)
+        host = u.host
+        proto = u.protocol.replace(':', '')
+    } else {
+        const headersList = await headers()
+        host = headersList.get('host') || 'localhost'
+        proto = headersList.get('x-forwarded-proto') || 'https'
+    }
     try {
         const metadata = _metadata[page] || _metadata["default"]
 
@@ -68,7 +81,7 @@ const getMetadata = async ({page = "default", data = {}}) => {
             description = replaceData({str: metadata.description, data})
 
         return {
-            metadataBase: new URL(`${headersList.get('x-forwarded-proto')}://${host}`),
+            metadataBase: new URL(`${proto}://${host}`),
             title,
             description,
             h1: replaceData({str: metadata.h1, data}),

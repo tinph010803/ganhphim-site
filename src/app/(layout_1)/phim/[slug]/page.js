@@ -22,6 +22,11 @@ import AdsBannerSidebar from "@/components/ads/BannerSidebar";
 import AdsBannerCenter from "@/components/ads/BannerCenter";
 import MovieShowtimesBanner from "@/components/movie/ShowtimesBanner";
 
+// ISR: cache toàn bộ rendered HTML mỗi 5 phút.
+// Yêu cầu: NEXT_PUBLIC_SITE_URL phải được set trong .env — tránh gọi headers()
+// trong getMetadata, nhờ đó Next.js ISR cache HTML ~1ms cho mọi request sau đó.
+export const revalidate = 300
+
 const pageMetadata = async (data) => {
     return await getMetadata({page: "detail", data})
 }
