@@ -1,18 +1,25 @@
 import {NextResponse} from 'next/server'
 
-const cachePaths = ['/phimhay', '/c/', '/the-loai/', '/quoc-gia/', '/dien-vien/', '/dao-dien/', '/network/', '/nha-san-xuat/', '/phim-bo', '/phim-le']
+// Pages Cloudflare/CDN sẽ cache HTML tĩnh.
+// s-maxage=60: CDN cache 60s, sau đó revalidate ngầm.
+// stale-while-revalidate=31536000: Trong khi revalidate, vẫn serve bản cũ ngay lập tức
+// → user không bao giờ phải đợi, luôn nhận HTML cached trong ~1ms từ edge.
+const CACHE_HEADER = 'public, s-maxage=60, stale-while-revalidate=31536000'
+
+const cachePaths = [
+    '/phimhay', '/phim-bo', '/phim-le',
+    '/c/', '/the-loai/', '/quoc-gia/',
+    '/dien-vien/', '/dao-dien/', '/network/', '/nha-san-xuat/',
+    '/phim/',   // movie detail pages
+    '/xem-phim/', // watch pages
+]
 
 export function middleware(request) {
-    // console.log(`[Middleware] ${request.method} ${request.nextUrl.pathname}`)
     const response = NextResponse.next()
     const pathname = request.nextUrl.pathname
 
     if (cachePaths.some(path => pathname.startsWith(path))) {
-        // console.log("add header cache:", pathname)
-        response.headers.set(
-            'Cache-Control',
-            'public, s-maxage=60, stale-while-revalidate=30'
-        )
+        response.headers.set('Cache-Control', CACHE_HEADER)
     }
 
     return response
