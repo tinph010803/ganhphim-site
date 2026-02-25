@@ -1,5 +1,6 @@
 import {getAPI, postAPI, isUsingOphimApi, isUsingGtavnApi} from "@/utils/axios";
 import {unstable_cache} from "next/cache";
+import {cache} from "react";
 
 const API_PREFIX = '/movie'
 
@@ -257,29 +258,39 @@ const mapGtavnPageCount = (pagination) => {
     return perPage > 0 ? Math.ceil(total / perPage) : 0
 }
 
-class MovieApi {
-    detail = unstable_cache(async (id) => {
-        if (isUsingOphimApi()) {
-            try {
-                const res = await getAPI({path: `/phim/${id}`, version: ''})
-                return normalizeOphimDetail(res?.data)
-            } catch (e) {
-                return null
-            }
+// unstable_cache: persists the result across different requests (disk/memory cache)
+// React.cache: deduplicates calls that share the same args WITHIN the same request
+// (e.g. generateMetadata + page component both calling detail(slug) → only 1 HTTP call)
+const _fetchMovieDetail = unstable_cache(async (id) => {
+    const t0 = Date.now()
+    let result
+    if (isUsingOphimApi()) {
+        try {
+            const res = await getAPI({path: `/phim/${id}`, version: ''})
+            result = normalizeOphimDetail(res?.data)
+        } catch (e) {
+            result = null
         }
-        if (isUsingGtavnApi()) {
-            try {
-                const res = await getAPI({path: `/phim/${id}`})
-                return normalizeGtavnDetail(res?.data)
-            } catch (e) {
-                console.error(`[MovieApi.detail] gtavn API error for slug "${id}":`, e?.message, e?.code, e?.response?.status)
-                return null
-            }
+    } else if (isUsingGtavnApi()) {
+        try {
+            const res = await getAPI({path: `/phim/${id}`})
+            result = normalizeGtavnDetail(res?.data)
+        } catch (e) {
+            console.error(`[MovieApi.detail] gtavn API error for slug "${id}":`, e?.message, e?.code, e?.response?.status)
+            result = null
         }
+    } else {
+        const {result: r} = await getAPI({path: `${API_PREFIX}/detail/${id}`});
+        result = r;
+    }
+    console.log(`[MovieApi.detail] "${id}" → ${Date.now() - t0}ms`)
+    return result
+}, ['movie-detail-v3'], {revalidate: 300})
 
-        const {result} = await getAPI({path: `${API_PREFIX}/detail/${id}`});
-        return result;
-    }, ['movie-detail-v3'], {revalidate: 10})
+const _cachedMovieDetail = cache(_fetchMovieDetail)
+
+class MovieApi {
+    detail = _cachedMovieDetail
 
     hot = async () => {
         if (isUsingOphimApi()) {

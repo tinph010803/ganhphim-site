@@ -1,9 +1,16 @@
 import axios from "axios";
 import AuthApi from "@/api/auth.api";
 import {getAuthTokens} from "@/utils/auth";
+import https from "https";
 
 const REFRESH_STATUS = 403;
 const DEFAULT_HEADERS = {"Content-Type": "application/json"};
+
+// Reuse TCP/TLS connections between server-side requests instead of
+// opening a fresh handshake (~200-500ms overhead) every time.
+const keepAliveAgent = typeof window === "undefined"
+    ? new https.Agent({keepAlive: true, maxSockets: 50, maxFreeSockets: 10, timeout: 30000})
+    : undefined;
 
 const getBaseURL = () => {
     const isServer = typeof window === "undefined";
@@ -34,6 +41,7 @@ const axiosInstance = axios.create({
     baseURL: getBaseURL(),
     headers: {...DEFAULT_HEADERS},
     timeout: 30000,
+    ...(keepAliveAgent ? {httpsAgent: keepAliveAgent} : {}),
 });
 
 axiosInstance.interceptors.request.use(
