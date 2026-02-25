@@ -13,7 +13,7 @@ import AuthApi from "@/api/auth.api";
 import {memo, useRef, useState} from "react";
 import {showToast} from "@/utils/helpers";
 import {Turnstile} from '@marsidev/react-turnstile'
-import GoogleSignIn from "@/components/auth/GoogleSignIn";
+
 
 const ModalLogin = () => {
   const {showModalLogin} = useAppSelector(state => state.auth)
@@ -34,19 +34,29 @@ const ModalLogin = () => {
         if (captchaToken) data.captchaToken = captchaToken
         setLoginLoading(true)
 
-        const res = await AuthApi.login(data)
-        setLoginLoading(false)
+        try {
+          const res = await AuthApi.login(data)
+          setLoginLoading(false)
 
-        const user = res?.data?.user || res?.result?.user
-        const msg = res?.message || res?.msg
+          const user = res?.data?.user || res?.result?.user
+          const msg = res?.message || res?.msg
 
-        if (!res?.status) {
+          if (!res?.status) {
+            showToast({message: msg || "Đăng nhập thất bại", type: "error"})
+            recaptchaLoginRef.current?.reset()
+          } else {
+            showToast({message: msg, type: 'success'})
+            dispatch(toggleShowModalLogin())
+            dispatch(setLoggedUser(user))
+          }
+        } catch (err) {
+          setLoginLoading(false)
+          const msg = err?.response?.data?.message
+            || err?.response?.data?.msg
+            || err?.message
+            || "Tên đăng nhập hoặc mật khẩu không đúng"
           showToast({message: msg, type: "error"})
           recaptchaLoginRef.current?.reset()
-        } else {
-          showToast({message: msg, type: 'success'})
-          dispatch(toggleShowModalLogin())
-          dispatch(setLoggedUser(user))
         }
       }
     }
@@ -107,9 +117,6 @@ const ModalLogin = () => {
               </div>
               <div className="form-opt text-center">
                   <a className="small" onClick={() => dispatch(toggleShowModalForgotPassword())}>Quên mật khẩu?</a>
-              </div>
-              <div className="button-group gap-2 w-100 mt-3">
-                  <GoogleSignIn/>
               </div>
           </form>
       </div>

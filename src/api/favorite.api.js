@@ -47,7 +47,18 @@ class FavoriteApi {
 
   listIds = async () => {
     if (isUsingOphimApi()) return {result: []}
-    if (isUsingGtavnApi()) return {result: []}
+    if (isUsingGtavnApi()) {
+      try {
+        const res = await getAPI({path: `${API_PREFIX}/list?limit=500&page=1`})
+        const rawItems = res?.data?.items || []
+        const ids = rawItems
+          .map((fav) => fav?.movie?._id || fav?.movieId || null)
+          .filter(Boolean)
+        return {result: ids}
+      } catch (err) {
+        return {result: []}
+      }
+    }
     const res = await getAPI({path: `${API_PREFIX}/listIds`})
     return res
   }

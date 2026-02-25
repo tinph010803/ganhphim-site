@@ -169,8 +169,8 @@ export const commentSlice = createSlice({
         })
         builder.addCase(fetchVoteList.fulfilled, (state, action) => {
             if (action.payload) {
-                state.likeIds = action.payload.like_ids
-                state.dislikeIds = action.payload.dislike_ids
+                state.likeIds = action.payload.like_ids || []
+                state.dislikeIds = action.payload.dislike_ids || []
             }
         })
     }

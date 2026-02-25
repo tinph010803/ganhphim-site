@@ -41,7 +41,16 @@ class CommentApi {
   add = async (data) => {
     if (isUsingOphimApi()) return {status: false, msg: 'Không khả dụng'}
     if (isUsingGtavnApi()) {
-      const res = await postAPI({path: GTAVN_PREFIX, data})
+      const gtavnData = {
+        movieId: data.movieId || data.movie_id,
+        content: data.content,
+        isSpoil: data.isSpoil ?? data.is_spoil ?? false,
+        ...(data.parentId || data.parent_id ? {parentId: data.parentId || data.parent_id} : {}),
+        ...(data.mentionId || data.mention_id ? {mentionId: data.mentionId || data.mention_id} : {}),
+        ...(data.episode_number != null ? {episodeNumber: data.episode_number} : {}),
+        ...(data.season_number != null ? {seasonNumber: data.season_number} : {}),
+      }
+      const res = await postAPI({path: GTAVN_PREFIX, data: gtavnData})
       const rawComment = res?.data?.comment || (res?.data?._id ? res.data : null)
       const comment = rawComment ? normalizeGtavnComment(rawComment) : null
       return {
@@ -134,7 +143,7 @@ class CommentApi {
   }
 
   voteList = async (movie_id) => {
-    if (isUsingOphimApi() || isUsingGtavnApi()) return {result: {items: []}}
+    if (isUsingOphimApi() || isUsingGtavnApi()) return {result: {like_ids: [], dislike_ids: []}}
     const res = await getAPI({path: `${API_PREFIX}/voteList?movie_id=${movie_id}`})
     return res
   }

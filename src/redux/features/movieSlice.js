@@ -207,6 +207,7 @@ export const movieSlice = createSlice({
             state.curEpisodeNumberPlayer = null
             state.curVersionPlayer = null
             state.cwInfo = null
+            state.cwInfoLoading = true
             state.videoEnded = false
             state.curGtavnServer = 'server_1'
         },

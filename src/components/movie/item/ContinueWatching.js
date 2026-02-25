@@ -1,6 +1,7 @@
 "use client"
 
 import {movieDetailUrl, movieWatchUrl} from "@/utils/url";
+import {isUsingGtavnApi} from "@/utils/axios";
 import {memo} from "react";
 import MovieImagesPoster from "@/components/movie/images/Poster";
 import {formatDuration} from "@/utils/helpers";
@@ -25,8 +26,16 @@ const MovieItemContinueWatching = ({movie, page = "home"}) => {
     }
   }
 
-  let watchUrl = `${movieWatchUrl(movie)}?ver=${movie.cw.version}`
-  if(movie.type===2) watchUrl += `&ss=${movie.cw.season_number}&ep=${movie.cw.episode_number}`
+  let watchUrl
+  if (isUsingGtavnApi() && (movie.cw.server_label || movie.cw.episode_name)) {
+    const params = []
+    if (movie.cw.server_label) params.push(`svr=${movie.cw.server_label}`)
+    if (movie.cw.episode_name != null) params.push(`ep=${encodeURIComponent(movie.cw.episode_name)}`)
+    watchUrl = `${movieWatchUrl(movie)}?${params.join('&')}`
+  } else {
+    watchUrl = `${movieWatchUrl(movie)}?ver=${movie.cw.version}`
+    if (movie.type === 2) watchUrl += `&ss=${movie.cw.season_number}&ep=${movie.cw.episode_number}`
+  }
 
   return (
     <div className="sw-item">

@@ -41,6 +41,7 @@ const MoviePlayer = ({movie}) => {
         cwInfoLoading,
         clickedEpisode,
         reduceLag,
+        curGtavnServer,
     } = useAppSelector(state => state.movie)
     const {loggedUser} = useAppSelector(state => state.auth)
     const intervalRef = useRef(null)
@@ -116,10 +117,16 @@ const MoviePlayer = ({movie}) => {
         const continueWatchingLog = async () => {
             if (playerTimeRef.current > 0 && playerTimeRef.current > lastTimeLogRef.current) {
                 lastTimeLogRef.current = playerTimeRef.current
+                const _gtavnSrcLabels = {server_1: 'op', server_2: 'pa', server_3: 'nc'}
+                const _srcKey = curGtavnServer ? curGtavnServer.split('_').slice(0,2).join('_') : null
+                const _serverLabel = _srcKey ? (_gtavnSrcLabels[_srcKey] || null) : null
                 await ContinueWatchingApi.save({
                     movie_id: movie._id,
+                    movie: movie,
                     season_number: curSeason?.season_number,
                     episode_number: curEpisode?.episode_number,
+                    episode_name: curEpisode?.name ?? null,
+                    server_label: _serverLabel,
                     version: curVersion,
                     time: playerTimeRef.current,
                     duration: playerDurationRef.current,
@@ -307,6 +314,20 @@ const MoviePlayer = ({movie}) => {
             {(() => {
                 const m3u8 = (curEpisode?.versions?.find(v => v.type == curVersionPlayer) || curEpisode?.versions?.[0])?.m3u8
                 if (m3u8 && !reduceLag) {
+                    // Wait for cwInfo to load before rendering so startTime is correct
+                    if (cwInfoLoading) {
+                        return <div style={{width:'100%',height:'100%',background:'#000',display:'flex',alignItems:'center',justifyContent:'center'}}><div className="spinner-border text-light" role="status"/></div>
+                    }
+                    const cwStartTime = (() => {
+                        if (!cwInfo) return 0
+                        if (movie.type === 1) return cwInfo.time || 0
+                        const curSeasonNum = curSeason?.season_number ?? 1
+                        if (
+                            cwInfo.episode_number === curEpisode?.episode_number &&
+                            (cwInfo.season_number ?? 1) === curSeasonNum
+                        ) return cwInfo.time || 0
+                        return 0
+                    })()
                     return (
                         <CustomPlayer
                             key={m3u8}
@@ -319,6 +340,11 @@ const MoviePlayer = ({movie}) => {
                             curSeason={curSeason}
                             curEpisode={curEpisode}
                             onSelectEpisode={handleSelectEpisode}
+                            startTime={cwStartTime}
+                            onTimeUpdate={(time, duration) => {
+                                playerTimeRef.current = time
+                                playerDurationRef.current = duration
+                            }}
                         />
                     )
                 }

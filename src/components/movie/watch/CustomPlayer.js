@@ -16,7 +16,7 @@ const formatTime = (sec) => {
     return `${m}:${String(s).padStart(2, '0')}`
 }
 
-const CustomPlayer = ({url, poster, title, onEnded, onNext, seasons = [], curSeason, curEpisode, onSelectEpisode}) => {
+const CustomPlayer = ({url, poster, title, onEnded, onNext, seasons = [], curSeason, curEpisode, onSelectEpisode, startTime = 0, onTimeUpdate}) => {
     const videoRef = useRef(null)
     const hlsRef = useRef(null)
     const containerRef = useRef(null)
@@ -24,7 +24,15 @@ const CustomPlayer = ({url, poster, title, onEnded, onNext, seasons = [], curSea
     const progressRef = useRef(null)
     const autoNextRef = useRef(true)
     const onEndedRef = useRef(onEnded)
+    const startTimeRef = useRef(startTime)
+    const startTimeSeekDoneRef = useRef(false)
+    const onTimeUpdateRef = useRef(onTimeUpdate)
     useEffect(() => { onEndedRef.current = onEnded }, [onEnded])
+    useEffect(() => { onTimeUpdateRef.current = onTimeUpdate }, [onTimeUpdate])
+    useEffect(() => {
+        startTimeRef.current = startTime
+        startTimeSeekDoneRef.current = false
+    }, [startTime])
 
     const [playing, setPlaying] = useState(false)
     const [currentTime, setCurrentTime] = useState(0)
@@ -113,6 +121,9 @@ const CustomPlayer = ({url, poster, title, onEnded, onNext, seasons = [], curSea
 
         initHls()
 
+        // Reset seek flag when URL changes (new episode)
+        startTimeSeekDoneRef.current = false
+
         return () => {
             if (hlsRef.current) {
                 if (videoRef.current) {
@@ -137,6 +148,16 @@ const CustomPlayer = ({url, poster, title, onEnded, onNext, seasons = [], curSea
             if (video.buffered.length > 0) {
                 setBuffered(video.buffered.end(video.buffered.length - 1))
             }
+            if (onTimeUpdateRef.current) {
+                onTimeUpdateRef.current(video.currentTime, video.duration || 0)
+            }
+        }
+        const onLoadedMetadata = () => {
+            const t = startTimeRef.current
+            if (t > 5 && !startTimeSeekDoneRef.current) {
+                startTimeSeekDoneRef.current = true
+                video.currentTime = t
+            }
         }
         const onDurationChange = () => setDuration(video.duration)
         const onVolumeChange = () => {
@@ -150,6 +171,7 @@ const CustomPlayer = ({url, poster, title, onEnded, onNext, seasons = [], curSea
         video.addEventListener('play', onPlay)
         video.addEventListener('pause', onPause)
         video.addEventListener('timeupdate', onTimeUpdate)
+        video.addEventListener('loadedmetadata', onLoadedMetadata)
         video.addEventListener('durationchange', onDurationChange)
         video.addEventListener('volumechange', onVolumeChange)
         video.addEventListener('ended', onVideoEnded)
@@ -158,6 +180,7 @@ const CustomPlayer = ({url, poster, title, onEnded, onNext, seasons = [], curSea
             video.removeEventListener('play', onPlay)
             video.removeEventListener('pause', onPause)
             video.removeEventListener('timeupdate', onTimeUpdate)
+            video.removeEventListener('loadedmetadata', onLoadedMetadata)
             video.removeEventListener('durationchange', onDurationChange)
             video.removeEventListener('volumechange', onVolumeChange)
             video.removeEventListener('ended', onVideoEnded)
