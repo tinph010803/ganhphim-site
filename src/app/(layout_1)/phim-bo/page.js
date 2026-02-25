@@ -3,6 +3,8 @@ import {getMetadata} from "@/utils/metadata";
 import H1Tags from "@/components/layout/H1Tags";
 import BannerCenter from "@/components/ads/BannerCenter";
 
+export const dynamic = 'force-dynamic'
+
 const pageMetadata = async () => {
     return await getMetadata({page: "tv"})
 }

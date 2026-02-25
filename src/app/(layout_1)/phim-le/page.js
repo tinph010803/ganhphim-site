@@ -4,6 +4,8 @@ import {genreUrl} from "@/utils/url";
 import H1Tags from "@/components/layout/H1Tags";
 import BannerCenter from "@/components/ads/BannerCenter";
 
+export const dynamic = 'force-dynamic'
+
 let metadata = null
 
 const pageMetadata = async () => {
