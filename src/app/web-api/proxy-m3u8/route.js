@@ -38,7 +38,9 @@ export async function GET(request) {
         })
 
         if (!upstream.ok) {
-            return new NextResponse(`Upstream error: ${upstream.status}`, {status: upstream.status})
+            // CDN trả lỗi (thường do block IP datacenter Vercel) → redirect về CDN gốc
+            // để browser tự fetch bằng IP thật, video vẫn coi được (mất ad-stripping nhưng không bị 404)
+            return NextResponse.redirect(url, {status: 302})
         }
 
         const contentType = upstream.headers.get('content-type') || 'application/vnd.apple.mpegurl'
@@ -166,6 +168,7 @@ export async function GET(request) {
         // (browser dùng IP thật, CDN không block; tránh size limit của edge function)
         return NextResponse.redirect(url, {status: 302})
     } catch (e) {
-        return new NextResponse('Proxy error: ' + e.message, {status: 500})
+        // Lỗi mạng (timeout, connection refused...) → redirect về CDN gốc thay vì trả 500
+        return NextResponse.redirect(url, {status: 302})
     }
 }

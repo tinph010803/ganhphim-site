@@ -16,6 +16,7 @@ const isUsingOphimApi = () => {
 };
 
 const isUsingGtavnApi = () => {
+    if (process.env.API_TYPE === 'gtavn') return true;
     const base = getBaseURL() || "";
     const apiPrefix = process.env.API_PREFIX || "";
     return /gtavn\.network/i.test(base) || /gtavn\.network/i.test(apiPrefix);
