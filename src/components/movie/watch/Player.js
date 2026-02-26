@@ -134,7 +134,7 @@ const MoviePlayer = ({movie}) => {
             }
         }
 
-        if (loggedUser && !loggedUser.is_shared) {
+        if (loggedUser ? !loggedUser.is_shared : isUsingGtavnApi()) {
             intervalRef.current = setInterval(() => {
                 continueWatchingLog()
             }, 10000)

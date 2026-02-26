@@ -4,6 +4,7 @@ import {useAppDispatch, useAppSelector} from "@/hooks/redux";
 import {setCwInfo, setCwInfoLoading} from "@/redux/features/movieSlice";
 import ContinueWatchingApi from "@/api/continueWatching.api";
 import {useEffect, useRef} from "react";
+import {isUsingGtavnApi} from "@/utils/axios";
 
 const useGetCwInfo = ({movie}) => {
     const dispatch = useAppDispatch()
@@ -19,7 +20,7 @@ const useGetCwInfo = ({movie}) => {
                 dispatch(setCwInfo(result))
                 dispatch(setCwInfoLoading(false))
             } catch (e) {
-
+                dispatch(setCwInfoLoading(false))
             }
         }
     }
@@ -27,6 +28,9 @@ const useGetCwInfo = ({movie}) => {
     useEffect(() => {
         if (!isLoadingUserInfo) {
             if (loggedUser) {
+                getCwInfo()
+            } else if (isUsingGtavnApi()) {
+                // Guest on GTAVN → still try localStorage
                 getCwInfo()
             } else {
                 dispatch(setCwInfoLoading(false))

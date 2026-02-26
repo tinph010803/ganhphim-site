@@ -1284,8 +1284,8 @@ body.focus-mod .player-ratio .control-items .item{ visibility: hidden;}
 .it-col .chart-list .item-more a{ color: #fff5;}
 .it-col .chart-list .item-more a:hover{ color: var(--primary-text);}
 .it-col .release-list{ position: relative;}
-.re-item{ display: flex; flex-direction: column; justify-content: center; height: 68px; gap: .2rem; padding: .6rem .8rem; padding-left: calc(40px + 1.6rem); border-radius: .6rem; background-color: #0005; border: 1px solid transparent; color: var(--text-base) !important;}
-.re-item:hover{ background-color: #0006; border-color: #fff4;}
+.re-item{ display: flex; flex-direction: column; justify-content: center; height: 68px; gap: .2rem; padding: .6rem .8rem; padding-left: calc(40px + 1.6rem); border-radius: .6rem; background-color: transparent; border: 1px solid transparent; color: var(--text-base) !important; position: relative;}
+.re-item:hover{ background-color: #fff1; border-color: #fff2;}
 .re-item .user-avatar{ width: 40px; height: 40px; flex-shrink: 0; position: absolute; top: 16px; left: .8rem;}
 .re-item .user-comment{ font-size: 12px; word-break: break-word;}
 .re-item .user-comment span{ color: #fff;}

@@ -44,7 +44,7 @@ const MovieDetailContent = ({movie}) => {
                     <MovieCastsFull movieId={movie._id} movie={movie}/>
                 </Tab.Pane>
                 <Tab.Pane eventKey="suggestion">
-                    <MovieSuggestion movieId={movie._id}/>
+                    <MovieSuggestion movieId={movie._id} movie={movie}/>
                 </Tab.Pane>
             </Tab.Content>
         </Tab.Container>

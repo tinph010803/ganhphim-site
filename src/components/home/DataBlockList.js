@@ -24,6 +24,7 @@ import HomeAnime from "@/components/home/Anime";
 import HomeHongKong from "@/components/home/HongKong";
 import HomeHorror from "@/components/home/Horror";
 import HomeCountryRows from "@/components/home/CountryRows";
+import LazySection from "@/components/shared/LazySection";
 
 const DataBlockList = () => {
     const dispatch = useAppDispatch()
@@ -88,47 +89,69 @@ const DataBlockList = () => {
                 </div>
             ))}
 
-            <HomeContinueWatching/>
+            <LazySection minHeight={120}>
+                <HomeContinueWatching/>
+            </LazySection>
 
-            <HomeCountryRows/>
+            <LazySection minHeight={200}>
+                <HomeCountryRows/>
+            </LazySection>
 
-            <HomeCommunity/>
+            <LazySection minHeight={200}>
+                <HomeCommunity/>
+            </LazySection>
 
             <AdsBannerCenter page="home" position="center_2"/>
 
             {/*<HomeW2g/>*/}
 
             {others.filter(i => i.style === 1).length > 0 && (
-                <div className="cards-row cards-slide wide effect-fade-in">
-                    <div className="topics-list single mt-0">
-                        {others.filter(i => i.style === 1).map((item, idx) => (
-                            <CollectionStyle1 key={item._id} collection={item} index={idx + 1}/>
-                        ))}
+                <LazySection minHeight={200}>
+                    <div className="cards-row cards-slide wide effect-fade-in">
+                        <div className="topics-list single mt-0">
+                            {others.filter(i => i.style === 1).map((item, idx) => (
+                                <CollectionStyle1 key={item._id} collection={item} index={idx + 1}/>
+                            ))}
+                        </div>
                     </div>
-                </div>
+                </LazySection>
             )}
 
-            <HomeHotSeries/>
+            <LazySection minHeight={300}>
+                <HomeHotSeries/>
+            </LazySection>
 
-            <HomeTop10Singles/>
+            <LazySection minHeight={300}>
+                <HomeTop10Singles/>
+            </LazySection>
 
-            <HomeCinema/>
+            <LazySection minHeight={300}>
+                <HomeCinema/>
+            </LazySection>
 
-            <HomeAnime/>
+            <LazySection minHeight={300}>
+                <HomeAnime/>
+            </LazySection>
 
-            <HomeHongKong/>
+            <LazySection minHeight={300}>
+                <HomeHongKong/>
+            </LazySection>
 
-            <HomeHorror/>
+            <LazySection minHeight={300}>
+                <HomeHorror/>
+            </LazySection>
 
             <AdsBannerCenter page="home" position="center_3"/>
 
             {others.filter(i => i.style !== 1).map((item) => (
-                <div key={item._id} className="effect-fade-in">
-                    {item.style === 2 && <CollectionStyle2 collection={item}/>}
-                    {item.style === 3 && <CollectionStyle3 collection={item}/>}
-                    {item.style === 4 && <CollectionStyle4 collection={item}/>}
-                    {item.style === 5 && <CollectionStyle5 collection={item}/>}
-                </div>
+                <LazySection key={item._id} minHeight={200}>
+                    <div className="effect-fade-in">
+                        {item.style === 2 && <CollectionStyle2 collection={item}/>}
+                        {item.style === 3 && <CollectionStyle3 collection={item}/>}
+                        {item.style === 4 && <CollectionStyle4 collection={item}/>}
+                        {item.style === 5 && <CollectionStyle5 collection={item}/>}
+                    </div>
+                </LazySection>
             ))}
 
             {currentPage < totalPages && <div ref={observerRef}><LoadingElement/></div>}

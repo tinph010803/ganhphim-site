@@ -152,7 +152,8 @@ class CommentApi {
     if (isUsingOphimApi()) return {result: []}
     if (isUsingGtavnApi()) {
       const res = await getAPI({path: `${GTAVN_PREFIX}/latest?page=${page}&limit=${limit}`})
-      return res
+      const items = (res?.data?.items || []).map(normalizeGtavnComment).filter(Boolean)
+      return {result: items}
     }
     const result = await getAPI({path: `${API_PREFIX}/latestComments`})
     return result

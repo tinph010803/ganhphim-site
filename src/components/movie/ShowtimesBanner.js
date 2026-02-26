@@ -20,7 +20,7 @@ const MovieShowtimesBanner = async ({slug}) => {
     return (
         <div className="movie-showtimes-banner">
             <span className="msb-icon">
-                <img src="https://rophimm.net/images/alarm.gif" alt="alarm" width={36} height={36} loading="lazy"/>
+                <img src="https://thiaphim.net/images/alarm.gif" alt="alarm" width={36} height={36} loading="lazy"/>
             </span>
             <span>
                 <strong>{next.episode}</strong> sẽ phát sóng ngày <strong>{dateFormatted}</strong>. Các bạn nhớ đón xem nhé 😘
