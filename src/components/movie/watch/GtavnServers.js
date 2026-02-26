@@ -2,7 +2,7 @@
 
 import {memo, useEffect, useMemo, useRef, useState} from "react";
 import {useAppDispatch, useAppSelector} from "@/hooks/redux";
-import {setCurGtavnServer, setCurEpisode} from "@/redux/features/movieSlice";
+import {setCurGtavnServer, setCurEpisode, setVideoEnded} from "@/redux/features/movieSlice";
 import {useRouter, useSearchParams} from "next/navigation";
 import {movieWatchUrl} from "@/utils/url";
 
@@ -26,13 +26,15 @@ const GtavnServers = ({movie, page = "watch"}) => {
     const dispatch = useAppDispatch()
     const router = useRouter()
     const searchParams = useSearchParams()
-    const {curGtavnServer, curEpisode} = useAppSelector(state => state.movie)
+    const {curGtavnServer, curEpisode, videoEnded} = useAppSelector(state => state.movie)
     const [showFull, setShowFull] = useState(false)
     const [currentChunk, setCurrentChunk] = useState(0)
     const [activeEpName, setActiveEpName] = useState(null)
     const [activeGroup, setActiveGroup] = useState(null)
     const isInitDoneRef = useRef(false)
     const lastEpPerServerRef = useRef({}) // { serverId: { ep, globalIdx, epName } }
+    const activeEpNameRef = useRef(null)
+    const activeServerIdRef = useRef(null)
 
 
     const rawServers = movie.gtavn_servers || {}
@@ -76,6 +78,9 @@ const GtavnServers = ({movie, page = "watch"}) => {
         ? curGtavnServer
         : defaultServerId
 
+    useEffect(() => { activeEpNameRef.current = activeEpName }, [activeEpName])
+    useEffect(() => { activeServerIdRef.current = activeServerId }, [activeServerId])
+
     const activeServer = allServers.find(s => s.id === activeServerId) || allServers[0]
     const episodes = activeServer?.eps || []
 
@@ -100,6 +105,29 @@ const GtavnServers = ({movie, page = "watch"}) => {
             m3u8: server.sourceKey === 'server_3' ? '' : (ep.link_m3u8 || ''),
         }],
     })
+
+    // Auto-next for GtaVN when videoEnded fires
+    useEffect(() => {
+        if (!videoEnded) return
+        if (page !== "watch") return
+        dispatch(setVideoEnded(false))
+        const curServerId = activeServerIdRef.current
+        const curEpName  = activeEpNameRef.current
+        const server = allServers.find(s => s.id === curServerId)
+        if (!server) return
+        const eps = server.eps
+        const curIdx = eps.findIndex(ep => (ep.name || '') === curEpName)
+        if (curIdx >= 0 && curIdx < eps.length - 1) {
+            const nextIdx = curIdx + 1
+            const nextEp  = eps[nextIdx]
+            const nextEpName = nextEp.name || String(nextIdx + 1)
+            dispatch(setCurEpisode(buildCurEpisode(server, nextEp, nextIdx)))
+            setActiveEpName(nextEpName)
+            lastEpPerServerRef.current = {[curServerId]: {ep: nextEp, globalIdx: nextIdx, epName: nextEpName}}
+            setCurrentChunk(Math.floor(nextIdx / CHUNK_SIZE))
+            window.scrollTo(0, 0)
+        }
+    }, [videoEnded])
 
     // Init: dispatch episode on mount (watch page only)
     useEffect(() => {

@@ -22,12 +22,13 @@ const CustomPlayer = ({url, poster, title, onEnded, onNext, seasons = [], curSea
     const containerRef = useRef(null)
     const controlsTimerRef = useRef(null)
     const progressRef = useRef(null)
-    const autoNextRef = useRef(true)
     const onEndedRef = useRef(onEnded)
+    const onNextRef = useRef(onNext)
     const startTimeRef = useRef(startTime)
     const startTimeSeekDoneRef = useRef(false)
     const onTimeUpdateRef = useRef(onTimeUpdate)
     useEffect(() => { onEndedRef.current = onEnded }, [onEnded])
+    useEffect(() => { onNextRef.current = onNext }, [onNext])
     useEffect(() => { onTimeUpdateRef.current = onTimeUpdate }, [onTimeUpdate])
     useEffect(() => {
         startTimeRef.current = startTime
@@ -48,7 +49,6 @@ const CustomPlayer = ({url, poster, title, onEnded, onNext, seasons = [], curSea
     const [buffered, setBuffered] = useState(0)
     const [showVolume, setShowVolume] = useState(false)
     const volumeWrapRef = useRef(null)
-    const [autoNext, setAutoNext] = useState(true)
 
     // Close volume slider when clicking outside
     useEffect(() => {
@@ -74,9 +74,6 @@ const CustomPlayer = ({url, poster, title, onEnded, onNext, seasons = [], curSea
         setEpListSeason(matched || curSeason)
     }, [curSeason, seasons])
     useEffect(() => { if (seasons.length > 0 && !epListSeason) setEpListSeason(seasons[0]) }, [seasons])
-
-    // Keep ref in sync
-    useEffect(() => { autoNextRef.current = autoNext }, [autoNext])
 
     // Init HLS
     useEffect(() => {
@@ -154,9 +151,13 @@ const CustomPlayer = ({url, poster, title, onEnded, onNext, seasons = [], curSea
         }
         const onLoadedMetadata = () => {
             const t = startTimeRef.current
-            if (t > 5 && !startTimeSeekDoneRef.current) {
+            const dur = video.duration
+            // Chỉ seek nếu còn lại ít nhất 30 giây, tránh tự jump cuối phim
+            if (t > 5 && !startTimeSeekDoneRef.current && (!dur || dur - t > 30)) {
                 startTimeSeekDoneRef.current = true
                 video.currentTime = t
+            } else {
+                startTimeSeekDoneRef.current = true
             }
         }
         const onDurationChange = () => setDuration(video.duration)
@@ -165,7 +166,7 @@ const CustomPlayer = ({url, poster, title, onEnded, onNext, seasons = [], curSea
             setMuted(video.muted)
         }
         const onVideoEnded = () => {
-            if (autoNextRef.current) onEndedRef.current?.()
+            onEndedRef.current?.()
         }
 
         video.addEventListener('play', onPlay)
@@ -189,9 +190,21 @@ const CustomPlayer = ({url, poster, title, onEnded, onNext, seasons = [], curSea
 
     // Fullscreen change
     useEffect(() => {
-        const onFsChange = () => setIsFullscreen(!!document.fullscreenElement)
+        const onFsChange = () => {
+            const inFs = !!document.fullscreenElement
+            setIsFullscreen(inFs)
+            if (!inFs) {
+                // Thoát fullscreen → trả về orientation ban đầu
+                try { screen.orientation?.unlock?.() } catch (_) {}
+            }
+        }
         document.addEventListener('fullscreenchange', onFsChange)
-        return () => document.removeEventListener('fullscreenchange', onFsChange)
+        // iOS webkitfullscreenchange
+        document.addEventListener('webkitfullscreenchange', onFsChange)
+        return () => {
+            document.removeEventListener('fullscreenchange', onFsChange)
+            document.removeEventListener('webkitfullscreenchange', onFsChange)
+        }
     }, [])
 
     // Keyboard shortcuts
@@ -242,11 +255,48 @@ const CustomPlayer = ({url, poster, title, onEnded, onNext, seasons = [], curSea
         }
     }, [])
 
-    const toggleFullscreen = useCallback(() => {
-        if (!document.fullscreenElement) {
-            containerRef.current?.requestFullscreen()
+    const toggleFullscreen = useCallback(async () => {
+        const video = videoRef.current
+        const isMobile = /Mobi|Android|iPhone|iPad/i.test(navigator.userAgent)
+
+        if (!document.fullscreenElement && !document.webkitFullscreenElement) {
+            if (isMobile) {
+                try {
+                    // Thử requestFullscreen (Android Chrome, iOS 16.4+)
+                    if (containerRef.current?.requestFullscreen) {
+                        await containerRef.current.requestFullscreen()
+                    } else if (containerRef.current?.webkitRequestFullscreen) {
+                        containerRef.current.webkitRequestFullscreen()
+                        await new Promise(r => setTimeout(r, 150))
+                    } else if (video?.webkitEnterFullscreen) {
+                        // Fallback iOS: native video fullscreen
+                        video.webkitEnterFullscreen()
+                        setIsFullscreen(true)
+                        return
+                    }
+                    // Lock landscape ngay sau khi fullscreen resolve
+                    try {
+                        await screen.orientation?.lock?.('landscape-primary')
+                    } catch (_) {
+                        try { await screen.orientation?.lock?.('landscape') } catch (__) {}
+                    }
+                } catch (err) {
+                    // Nếu requestFullscreen lỗi, fallback native iOS player
+                    if (video?.webkitEnterFullscreen) {
+                        video.webkitEnterFullscreen()
+                        setIsFullscreen(true)
+                    }
+                }
+            } else {
+                // Desktop
+                try {
+                    await containerRef.current?.requestFullscreen?.()
+                } catch (_) {}
+            }
         } else {
-            document.exitFullscreen()
+            try { screen.orientation?.unlock?.() } catch (_) {}
+            const exit = document.exitFullscreen || document.webkitExitFullscreen
+            try { exit?.call(document) } catch (_) {}
         }
     }, [])
 
@@ -365,6 +415,20 @@ const CustomPlayer = ({url, poster, title, onEnded, onNext, seasons = [], curSea
                 </div>
             )}
 
+            {/* Next episode overlay - shown in last 10 seconds */}
+            {!!(onNext && duration > 30 && currentTime > 0 && (duration - currentTime) <= 10) && (() => {
+                const remaining = Math.max(0, Math.min(10, duration - currentTime))
+                const fillPct = ((10 - remaining) / 10 * 100).toFixed(1)
+                return (
+                    <div className="cp-next-ep-overlay"
+                         style={{background: `linear-gradient(to right, rgba(180,18,26,0.92) ${fillPct}%, rgba(0,0,0,0.78) ${fillPct}%)`}}
+                         onClick={e => { e.stopPropagation(); onNextRef.current?.() }}>
+                        <span>Tập tiếp theo</span>
+                        <svg viewBox="0 0 24 24" fill="currentColor" width="16" height="16"><path d="M6 18l8.5-6L6 6v12zM20 6v12h2V6h-2z"/></svg>
+                    </div>
+                )
+            })()}
+
             {/* Controls */}
             <div className={`cp-controls ${showControls || !playing ? 'visible' : ''}`}
                  onClick={e => e.stopPropagation()}>
@@ -425,17 +489,9 @@ const CustomPlayer = ({url, poster, title, onEnded, onNext, seasons = [], curSea
                     </div>
 
                     <div className="cp-bar-right">
-                        {/* Auto next toggle */}
-                        <div className="cp-autonext" onClick={() => setAutoNext(v => !v)} title="Tự động chuyển tập">
-                            <span className="cp-autonext-label">Chuyển tập</span>
-                            <div className={`cp-toggle ${autoNext ? 'on' : ''}`}>
-                                <div className="cp-toggle-dot"/>
-                            </div>
-                        </div>
-
                         {/* Next episode */}
                         {onNext && (
-                            <button className="cp-btn" onClick={onNext} title="Tập tiếp theo">
+                            <button className="cp-btn" onClick={() => onNextRef.current?.()} title="Tập tiếp theo">
                                 <svg viewBox="0 0 24 24" fill="currentColor" width="22" height="22"><path d="M6 18l8.5-6L6 6v12zM20 6v12h2V6h-2z"/></svg>
                             </button>
                         )}
@@ -710,44 +766,6 @@ const CustomPlayer = ({url, poster, title, onEnded, onNext, seasons = [], curSea
                     font-variant-numeric: tabular-nums;
                 }
                 .cp-time-sep { opacity: .5; }
-                .cp-autonext {
-                    display: flex;
-                    align-items: center;
-                    gap: 6px;
-                    cursor: pointer;
-                    padding: 4px 6px;
-                    border-radius: 6px;
-                    transition: background .15s;
-                }
-                .cp-autonext:hover { background: rgba(255,255,255,.1); }
-                .cp-autonext-label {
-                    font-size: 11px;
-                    color: #fff;
-                    white-space: nowrap;
-                    opacity: .85;
-                }
-                .cp-toggle {
-                    width: 32px;
-                    height: 18px;
-                    border-radius: 9px;
-                    background: rgba(255,255,255,.3);
-                    position: relative;
-                    flex-shrink: 0;
-                    transition: background .2s;
-                }
-                .cp-toggle.on { background: #e5161e; }
-                .cp-toggle-dot {
-                    position: absolute;
-                    top: 2px;
-                    left: 2px;
-                    width: 14px;
-                    height: 14px;
-                    border-radius: 50%;
-                    background: #fff;
-                    transition: transform .2s;
-                    box-shadow: 0 1px 3px rgba(0,0,0,.3);
-                }
-                .cp-toggle.on .cp-toggle-dot { transform: translateX(14px); }
                 .cp-settings-wrap {
                     position: relative;
                 }
@@ -988,12 +1006,36 @@ const CustomPlayer = ({url, poster, title, onEnded, onNext, seasons = [], curSea
                     overflow: hidden;
                     text-overflow: ellipsis;
                 }
+                /* Next episode overlay */
+                .cp-next-ep-overlay {
+                    position: absolute;
+                    bottom: 72px;
+                    right: 14px;
+                    z-index: 15;
+                    display: flex;
+                    align-items: center;
+                    gap: 10px;
+                    color: #fff;
+                    font-size: 14px;
+                    font-weight: 500;
+                    padding: 9px 18px;
+                    border-radius: 8px;
+                    cursor: pointer;
+                    border: 1px solid rgba(255,255,255,.25);
+                    backdrop-filter: blur(6px);
+                    white-space: nowrap;
+                    animation: cp-fade-in .3s ease;
+                    transition: border-color .15s, transform .15s;
+                    user-select: none;
+                    overflow: hidden;
+                }
+                .cp-next-ep-overlay:hover {
+                    border-color: rgba(229,22,30,.8);
+                    transform: scale(1.03);
+                }
                 @media (max-width: 480px) {
                     .cp-btn {
                         padding: 5px 5px;
-                    }
-                    .cp-autonext {
-                        display: none;
                     }
                     .cp-time {
                         font-size: 11px;

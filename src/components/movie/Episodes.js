@@ -1,6 +1,6 @@
 "use client"
 
-import {memo, useEffect, useState} from "react";
+import {memo, useEffect, useRef, useState} from "react";
 import SubtitleIcon from "@/components/icons/Subtitle";
 import VoiceoverIcon from "@/components/icons/Voiceover";
 import PresentIcon from "@/components/icons/Present";
@@ -72,15 +72,26 @@ const MovieEpisodes = ({movie, page}) => {
         getSeasons()
     }, [])
 
+    const episodesRef = useRef([])
+    const curEpisodeRef = useRef(null)
+    const curVersionRef = useRef(null)
+    useEffect(() => { episodesRef.current = episodes }, [episodes])
+    useEffect(() => { curEpisodeRef.current = curEpisode }, [curEpisode])
+    useEffect(() => { curVersionRef.current = curVersion }, [curVersion])
+
     // Auto-next: go to next episode when video ends
     useEffect(() => {
         if (!videoEnded) return
         dispatch(setVideoEnded(false))
-        if (!curEpisode || !episodes.length) return
-        const idx = episodes.findIndex(e => e._id === curEpisode._id)
-        if (idx >= 0 && idx < episodes.length - 1) {
-            const nextEp = episodes[idx + 1]
+        const eps = episodesRef.current
+        const curEp = curEpisodeRef.current
+        const ver = curVersionRef.current
+        if (!curEp || !eps.length) return
+        const idx = eps.findIndex(e => e._id === curEp._id || e.episode_number === curEp.episode_number)
+        if (idx >= 0 && idx < eps.length - 1) {
+            const nextEp = eps[idx + 1]
             dispatch(setCurEpisode(nextEp))
+            dispatch(setCurVersionPlayer(ver))
             dispatch(setClickedEpisode(true))
         }
     }, [videoEnded])

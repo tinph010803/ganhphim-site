@@ -72,6 +72,34 @@ const MoviePlayer = ({movie}) => {
         window.scrollTo(0, 0)
     }
 
+    const handleNextEpisode = () => {
+        // Trường hợp có seasons (OPhim/rophim API) → tự tìm và chuyển tập
+        if (seasons.length > 0 && curEpisode) {
+            // Tìm season hiện tại trong seasons
+            const season = seasons.find(s => s.season_number === (curSeason?.season_number ?? 1)) || seasons[0]
+            const eps = (season?.episodes || []).filter(ep =>
+                ep.versions?.some(v => v.type == curVersion) || ep.versions?.length > 0
+            )
+            const idx = eps.findIndex(e =>
+                e._id === curEpisode._id ||
+                e.episode_number === curEpisode.episode_number
+            )
+            if (idx >= 0 && idx < eps.length - 1) {
+                handleSelectEpisode(season, eps[idx + 1])
+                return
+            }
+            // Hết tập của season, thử sang season kế
+            const sIdx = seasons.findIndex(s => s.season_number === season.season_number)
+            if (sIdx >= 0 && sIdx < seasons.length - 1) {
+                const nextSeason = seasons[sIdx + 1]
+                const nextEp = nextSeason?.episodes?.[0]
+                if (nextEp) { handleSelectEpisode(nextSeason, nextEp); return }
+            }
+        }
+        // Fallback → GtavnServers.js sẽ bắt videoEnded và xử lý
+        dispatch(setVideoEnded(true))
+    }
+
     // OPhim: auto-set curEpisode for single movies (type=1) since MovieVersions doesn't dispatch it
     useEffect(() => {
         if (!isUsingOphimApi() || movie.type !== 1) return
@@ -335,7 +363,7 @@ const MoviePlayer = ({movie}) => {
                             title={movie.title}
                             poster={movie.images?.backdrops?.[0]?.path || movie.images?.posters?.[0]?.path || ''}
                             onEnded={() => dispatch(setVideoEnded(true))}
-                            onNext={() => dispatch(setVideoEnded(true))}
+                            onNext={handleNextEpisode}
                             seasons={seasons}
                             curSeason={curSeason}
                             curEpisode={curEpisode}
