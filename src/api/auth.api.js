@@ -87,11 +87,14 @@ class AuthApi {
     }
 
     logout = async () => {
+        if (isUsingGtavnApi()) {
+            removeAuthTokens()
+            return {status: true}
+        }
         const {refreshToken} = getAuthTokens()
-        const data = isUsingGtavnApi() ? undefined : {refreshToken}
         const res = await postAPI({
             path: `${API_PREFIX}/logout`,
-            data
+            data: {refreshToken}
         })
 
         removeAuthTokens()

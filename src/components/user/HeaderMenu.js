@@ -39,6 +39,8 @@ const UserHeaderMenu = ({}) => {
 
         if (status) {
             dispatch(setLoggedUser(null))
+            showToast({message: 'Đăng xuất thành công!', type: 'success'})
+            setTimeout(() => window.location.reload(), 800)
         } else {
             showToast({message: msg, type: 'error'})
         }
