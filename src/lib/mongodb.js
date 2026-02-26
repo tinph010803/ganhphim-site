@@ -10,15 +10,20 @@ if (!uri) {
     throw new Error("MONGODB_URI not set in environment variables");
 }
 
+const mongoOptions = {
+    tls: true,
+    tlsInsecure: true,
+};
+
 if (process.env.NODE_ENV === "development") {
     // In development, reuse the connection across hot-reloads
     if (!global._mongoClientPromise) {
-        client = new MongoClient(uri);
+        client = new MongoClient(uri, mongoOptions);
         global._mongoClientPromise = client.connect();
     }
     clientPromise = global._mongoClientPromise;
 } else {
-    client = new MongoClient(uri);
+    client = new MongoClient(uri, mongoOptions);
     clientPromise = client.connect();
 }
 
