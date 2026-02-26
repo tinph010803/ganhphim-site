@@ -1,17 +1,19 @@
 import {NextResponse} from 'next/server'
 
 // Pages Cloudflare/CDN sẽ cache HTML tĩnh.
-// s-maxage=60: CDN cache 60s, sau đó revalidate ngầm.
-// stale-while-revalidate=31536000: Trong khi revalidate, vẫn serve bản cũ ngay lập tức
-// → user không bao giờ phải đợi, luôn nhận HTML cached trong ~1ms từ edge.
-const CACHE_HEADER = 'public, s-maxage=60, stale-while-revalidate=31536000'
+// s-maxage=300: CDN cache "fresh" 5 phút
+// stale-while-revalidate=86400: Sau 5 phút, vẫn serve bản cũ tức thì + revalidate ngầm
+// → user LUÔN nhận HTML tức thì, nội dung cũ tối đa 5 phút
+const CACHE_HEADER = 'public, s-maxage=300, stale-while-revalidate=86400'
 
 const cachePaths = [
     '/phimhay', '/phim-bo', '/phim-le',
     '/c/', '/the-loai/', '/quoc-gia/',
     '/dien-vien/', '/dao-dien/', '/network/', '/nha-san-xuat/',
-    '/phim/',   // movie detail pages
-    '/xem-phim/', // watch pages
+    '/chu-de/', '/lich-chieu',
+    '/dongphim/', '/ghienphim/', '/motphim/', '/subnhanh/',
+    '/phim/',      // movie detail pages
+    '/xem-phim/',  // watch pages
 ]
 
 export function middleware(request) {
